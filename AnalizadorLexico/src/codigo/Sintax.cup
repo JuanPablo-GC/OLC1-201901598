@@ -1,0 +1,147 @@
+package codigo;
+
+import java_cup.runtime.Symbol;
+
+parser code
+{:
+    private Symbol s;
+    
+    public void syntax_error(Symbol s){
+        this.s = s;
+    }
+
+    public Symbol getS(){
+        return this.s;
+}
+:};
+
+terminal Reservadas,
+    Igual,
+    Suma,
+    Resta,
+    Multiplicacion,
+    Division,
+    Módulo,
+    Potencia,
+    
+    Variable,
+    Numero,
+    Cadena,
+    Booleano,
+    Caracter,
+    
+    Global,
+    Comentario,
+    ComentarioMultilinea,
+    Ingresar,
+    Como,
+    ConValor,
+
+    
+    Asignacion,
+    PuntoComa,
+    Coma,
+    
+    Si,
+    Entonces,
+    FinSi,
+    DeloContrario,
+    OSi,
+    
+    Segun,
+    Hacer,
+    FinSegun,
+    
+    Para,
+    Hasta,
+    FinPara,
+    Incremental,
+    
+    Mientras,
+    FinMientras,
+    
+    Repetir,
+    HastaQue,
+    
+    Retornar,
+    
+    Metodo,
+    FinMetodo,
+    Parametros,
+    Nombre,
+    
+    Funcion,
+    FinFuncion,
+    
+    Ejecutar,
+    LLamada,
+    
+    Imprimir,
+    ImprimirSalto,
+    
+    Letra,
+    TipoDato,
+    
+    OperadorLogico,
+    OperadorRelacional,
+    OperadorAtribucion,
+    OperadorIncremento,
+    
+    
+    ParentesisA,
+    ParentesisC,
+    LLaveA,
+    LLaveC,
+    
+    ERROR;
+    
+
+
+
+non terminal INICIO, DECLARAR, SENTENCIA, SENTENCIABOOLEANA, IF;
+
+start with INICIO;
+
+INICIO ::= 
+    Global
+
+    IF
+    
+    Global
+;
+
+DECLARAR::=
+    Variable Asignacion Variable |
+    Variable Asignacion Cadena |
+    Variable Asignacion Numero |
+    Variable Asignacion Booleano
+;
+
+
+SENTENCIA::=
+    DECLARAR  |
+    SENTENCIA DECLARAR 
+
+;
+
+SENTENCIABOOLEANA::=
+    Booleano |
+
+    Variable OperadorRelacional Booleano |
+    Variable OperadorRelacional Variable |
+    Variable OperadorRelacional Numero
+   
+;
+
+
+IF ::= 
+    Si ParentesisA SENTENCIABOOLEANA ParentesisC Entonces
+    SENTENCIA |
+    
+    IF DeloContrario SENTENCIA  FinSi
+    
+
+;
+
+
+

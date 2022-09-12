@@ -14,7 +14,7 @@ espacio=[ \t\r\n]+
 if |
 else |
 while {lexeme=yytext(); return Reservadas;}
-{espacio} {/*Ignore*/}
+{espacio} {/*ignore*/}
 
 "=" {lexeme=yytext(); return Igual;}
 "+" {lexeme=yytext(); return Suma;}
@@ -25,10 +25,17 @@ while {lexeme=yytext(); return Reservadas;}
 "potencia" {lexeme=yytext(); return Potencia;}
 
 
+
+
+
+
+
+
+
 /* variable */
-_[a-zA-Z0-9]+_ {lexeme=yytext(); return Variable;}
-[0-9]+(\.[0-9][0-9]?)? {lexeme=yytext(); return Numero;}
-\"(.+)*\" {lexeme=yytext(); return Cadena;}
+_[a-zA-Z0-9_]+_ {lexeme=yytext(); return Variable;}
+[0-9]+(\.[0-9]+?)? {lexeme=yytext(); return Numero;}
+\"[a-zA-Z0-9 ]+\" {lexeme=yytext(); return Cadena;}
 
 "Verdadero" {lexeme=yytext(); return Booleano;}
 "Falso" {lexeme=yytext(); return Booleano;}
@@ -39,7 +46,7 @@ _[a-zA-Z0-9]+_ {lexeme=yytext(); return Variable;}
 
 
 \/\/.+ {lexeme=yytext(); return Comentario;}
-\/{1}\*{1}(.+(\n|.)+)*\*{1}\/{1} {lexeme=yytext(); return ComentarioMultilinea;}
+\/{1}\*{1}((.|\n)+(\n|.)+)*\*{1}\/{1} {lexeme=yytext(); return ComentarioMultilinea;}
 
 "ingresar" {lexeme=yytext(); return Ingresar;}
 "como" {lexeme=yytext(); return Como;}
@@ -83,7 +90,7 @@ _[a-zA-Z0-9]+_ {lexeme=yytext(); return Variable;}
 "fin_metodo" {lexeme=yytext(); return FinMetodo;}
 "con_parametros" {lexeme=yytext(); return Parametros;}
 
-[a-zA-Z0-9]+\( {lexeme=yytext(); return Nombre;}
+
 "funcion" {lexeme=yytext(); return Funcion;}
 "fin_funcion" {lexeme=yytext(); return FinFuncion;}
 
@@ -116,6 +123,9 @@ _[a-zA-Z0-9]+_ {lexeme=yytext(); return Variable;}
 ")" {lexeme = yytext(); return ParentesisC;}
 "{" {lexeme = yytext(); return LLaveA;}
 "}" {lexeme = yytext(); return LLaveC;}
+"[" {lexeme = yytext(); return CorcheteA;}
+"]" {lexeme = yytext(); return CorcheteC;}
+
 
 
  .| [a-zA-Z0-9]+ {lexeme=yytext(); return ERROR;}

@@ -11,6 +11,8 @@ package codigo;
  */
 public enum Tokens {
     Reservadas,
+    Espacio, 
+    
     Igual,
     Suma,
     Resta,
@@ -63,7 +65,7 @@ public enum Tokens {
     Metodo,
     FinMetodo,
     Parametros,
-    Nombre,
+
     
     Funcion,
     FinFuncion,
@@ -87,6 +89,8 @@ public enum Tokens {
     ParentesisC,
     LLaveA,
     LLaveC,
+    CorcheteA,
+    CorcheteC,
     
     ERROR
     

@@ -8,9 +8,11 @@ package codigo;
 import com.sun.xml.internal.ws.api.ha.StickyFeature;
 import java.awt.Color;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -20,12 +22,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import jdk.nashorn.internal.runtime.regexp.joni.Syntax;
 
 /**
  *
  * @author 50242
  */
+
+
+
+
 public class FrmPrincipal extends javax.swing.JFrame {
 
     /**
@@ -35,16 +43,17 @@ public class FrmPrincipal extends javax.swing.JFrame {
         initComponents();
         this.setLocationRelativeTo(null);
     }
-
+ 
     private void analizarLexico(){
         
         
         
         try {
-            String expr= (String) txtAnalizar.getText();
+            String expr= (String) txtAnalizar.getText().toLowerCase();
 
             Lexer lexer = new Lexer(new StringReader(expr));
             String resultado="";
+
             while(true){
                 Tokens tokens = lexer.yylex();
                 if(tokens == null ){
@@ -58,7 +67,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         break;
                         
                     case Variable: case Numero: case Reservadas:
-                        resultado+= lexer.lexeme + ": Es un "+ tokens +"\n";
+                        resultado+=lexer.lexeme + ": Es un "+ tokens +"\n";
                         break;
                     case Cadena:
                         resultado+= lexer.lexeme + ": Es un "+ tokens +"\n";
@@ -87,7 +96,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         
                     //condicional si    
                     case Si: case Entonces: case FinSi: case DeloContrario: case OSi:
-                        resultado+= lexer.lexeme + ": Es un "+ tokens +"\n";
+                    resultado+= lexer.lexeme + ": Es un "+ tokens +"\n";
                         break; 
                         
                     //selecciones Multiples 
@@ -120,7 +129,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                             
                         
                     //para funciones 
-                    case Funcion: case FinFuncion: case Nombre:
+                    case Funcion: case FinFuncion:
                         resultado+= lexer.lexeme + ": Es un "+ tokens +"\n";
                         break;
                         
@@ -140,9 +149,15 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         break;
                         
                     //para () {}
-                    case ParentesisA: case ParentesisC: case LLaveA: case LLaveC:
+                    case ParentesisA: case ParentesisC: case LLaveA: case LLaveC: case CorcheteA: case CorcheteC:
                         resultado+= lexer.lexeme + ": Es un "+ tokens +"\n";
                         break;
+                        
+                    //para espacio, tabulaciones etc 
+                    case Espacio:
+                    //resultado+= lexer.lexeme + ": Es un "+ tokens +"\n";
+                        break;
+                    
                     default:
                         resultado += "TOKEN: "+ tokens + "*****\n";
                         
@@ -166,6 +181,9 @@ public class FrmPrincipal extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenu2 = new javax.swing.JMenu();
         btnAnalizar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtResultado = new javax.swing.JTextArea();
@@ -175,6 +193,20 @@ public class FrmPrincipal extends javax.swing.JFrame {
         btnSintactico = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         txtSintactico = new javax.swing.JTextArea();
+        btnGraficar = new javax.swing.JButton();
+        jMenuBar2 = new javax.swing.JMenuBar();
+        jMenu3 = new javax.swing.JMenu();
+        btnAbrirArchivo = new javax.swing.JMenuItem();
+        btnGuardarContenido = new javax.swing.JMenuItem();
+        jMenu4 = new javax.swing.JMenu();
+        jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
+
+        jMenu1.setText("File");
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Edit");
+        jMenuBar1.add(jMenu2);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -214,6 +246,45 @@ public class FrmPrincipal extends javax.swing.JFrame {
         txtSintactico.setRows(5);
         jScrollPane3.setViewportView(txtSintactico);
 
+        btnGraficar.setText("AST");
+        btnGraficar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGraficarActionPerformed(evt);
+            }
+        });
+
+        jMenu3.setText("ARCHIVO");
+
+        btnAbrirArchivo.setText("ABRIR");
+        btnAbrirArchivo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAbrirArchivoActionPerformed(evt);
+            }
+        });
+        jMenu3.add(btnAbrirArchivo);
+
+        btnGuardarContenido.setText("GUARDAR COMO");
+        btnGuardarContenido.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGuardarContenidoActionPerformed(evt);
+            }
+        });
+        jMenu3.add(btnGuardarContenido);
+
+        jMenuBar2.add(jMenu3);
+
+        jMenu4.setText("REPORTES");
+
+        jMenuItem2.setText("DIAGRAMA");
+        jMenu4.add(jMenuItem2);
+
+        jMenuItem3.setText("ERRORES");
+        jMenu4.add(jMenuItem3);
+
+        jMenuBar2.add(jMenu4);
+
+        setJMenuBar(jMenuBar2);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -226,14 +297,16 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         .addGap(78, 78, 78)
                         .addComponent(btnAbrir, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(30, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnAnalizar, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(88, 88, 88))))
+                        .addGap(88, 88, 88))
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(btnGraficar)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(30, Short.MAX_VALUE))))
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -256,10 +329,12 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE)
                     .addComponent(jScrollPane2))
                 .addGap(18, 18, 18)
-                .addComponent(btnSintactico)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnSintactico)
+                    .addComponent(btnGraficar))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -277,7 +352,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         File archivo2 = new File(chooser.getSelectedFile().getAbsolutePath());
         
         try{
-            String ST= new String(Files.readAllBytes(archivo2.toPath()));
+            String ST= new String(Files.readAllBytes(archivo2.toPath())).toLowerCase();
             txtAnalizar.setText(ST);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
@@ -287,28 +362,70 @@ public class FrmPrincipal extends javax.swing.JFrame {
         
         
     }//GEN-LAST:event_btnAbrirActionPerformed
-
+    Sintax s;
     private void btnSintacticoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSintacticoActionPerformed
         // TODO add your handling code here:
         
         String ST= txtAnalizar.getText();
-        Sintax s = new Sintax(new codigo.LexerCup(new StringReader(ST)));
+        s = new Sintax(new codigo.LexerCup(new StringReader(ST)));
+        
+        
         
         try {
             s.parse();
             txtSintactico.setText("Analisis Sintactico Correcto");
             txtSintactico.setForeground(Color.blue);
+            
+            
+            
         } catch (Exception ex) {
             
             
             
             Symbol sym = s.getS();
-            txtSintactico.setText("Error de Sintaxis    Linea :"+(sym.right+1)+" Columna: "+(sym.left+1)+" Texto: "+ sym.value);
+            txtSintactico.setText("Error de Sintaxis    Linea: "+(sym.right+1)+" Columna: "+(sym.left+1)+" Texto: "+ sym.value );
             txtSintactico.setForeground(Color.red);
             
         }
         
+        
     }//GEN-LAST:event_btnSintacticoActionPerformed
+
+    private void btnGraficarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGraficarActionPerformed
+        // TODO add your handling code here:
+        Nodo raiz = null;
+        raiz = s.getRaiz();
+        if(raiz != null){
+           
+            Arbol arbol = new Arbol(raiz);
+            arbol.GraficarSintactico();
+        }
+       
+        JOptionPane.showMessageDialog(null, "Arbol Graficado con exito", "Informacion", JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_btnGraficarActionPerformed
+
+        //boton del panel para abrir el archivo
+    private void btnAbrirArchivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirArchivoActionPerformed
+        // TODO add your handling code here:
+        JFileChooser chooser = new JFileChooser();
+        chooser.showOpenDialog(null);
+        File archivo2 = new File(chooser.getSelectedFile().getAbsolutePath());
+        
+        try{
+            String ST= new String(Files.readAllBytes(archivo2.toPath())).toLowerCase();
+            txtAnalizar.setText(ST);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }//GEN-LAST:event_btnAbrirArchivoActionPerformed
+    //guarda el contenido del txt en un archivo .olv
+    private void btnGuardarContenidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarContenidoActionPerformed
+        // TODO add your handling code here:
+        guardarContenido();
+    }//GEN-LAST:event_btnGuardarContenidoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -344,11 +461,51 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         });
     }
+    
+    
+    
+    public void guardarContenido(){
+        String contenido= (String) txtAnalizar.getText().toLowerCase();
+        JFileChooser fc = new JFileChooser(); 
+        int seleccion = fc.showOpenDialog(this);
+        if (seleccion ==JFileChooser.APPROVE_OPTION){
+            
+        }
+        
+        try {
+            //String ruta = "D:/Descargas/SEMESTRE 2022/COMPILADORES 1/LAB/AnalizadorLexico/Contenido.txt";
 
+            File file = fc.getSelectedFile();
+            // Si el archivo no existe es creado
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileWriter fw = new FileWriter(file);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(contenido);
+            bw.close();
+            JOptionPane.showMessageDialog(null, "Archivo guardado con exito", "Informacion", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAbrir;
+    private javax.swing.JMenuItem btnAbrirArchivo;
     private javax.swing.JButton btnAnalizar;
+    private javax.swing.JButton btnGraficar;
+    private javax.swing.JMenuItem btnGuardarContenido;
     private javax.swing.JButton btnSintactico;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenu jMenu4;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuBar jMenuBar2;
+    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;

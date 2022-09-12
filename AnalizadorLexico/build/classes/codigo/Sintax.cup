@@ -4,24 +4,33 @@ import java_cup.runtime.Symbol;
 
 parser code
 {:
+    
+    
+    public static Nodo raiz;
+        
+    public Nodo getRaiz(){
+            return raiz;
+    }
+
+
     private Symbol s;
     
     public void syntax_error(Symbol s){
         this.s = s;
-    }
+        System.out.println("ERROR Sintactico :"+ s.value+ "  Linea: " + (s.left+1) +" Columna: "+(s.right+1) );
+        
+}
 
     public Symbol getS(){
         return this.s;
-}
+    }
+
+    public String ResultadoPython="";
 :};
 
 terminal Reservadas,
     Igual,
-    Suma,
-    Resta,
-    Multiplicacion,
-    Division,
-    Módulo,
+    OperadorAritmetico,
     Potencia,
     
     Variable,
@@ -68,7 +77,7 @@ terminal Reservadas,
     Metodo,
     FinMetodo,
     Parametros,
-    Nombre,
+
     
     Funcion,
     FinFuncion,
@@ -79,7 +88,7 @@ terminal Reservadas,
     Imprimir,
     ImprimirSalto,
     
-    Letra,
+    //Letra,
     TipoDato,
     
     OperadorLogico,
@@ -92,56 +101,502 @@ terminal Reservadas,
     ParentesisC,
     LLaveA,
     LLaveC,
+    CorcheteA, 
+    CorcheteC, 
     
     ERROR;
     
 
 
 
-non terminal INICIO, DECLARAR, SENTENCIA, SENTENCIABOOLEANA, IF;
+non terminal INICIO, DECLARAR, INCREMENTAR, ATRIBUIR, SENTENCIA, SENTENCIABOOLEANA, RETORNAR,
+             IF, SEGUN, PARA, MIENTRAS, REPETIR, METODO, PARAMETROS, FUNCION, EJECUTAR, PARAMETROSEJECUTAR, ARITMETICA, POTENCIA, 
+             IMPRIMIR, INGRESAR, COMENTARIO, ARITMETICA2,COMPARADOR ;
 
 start with INICIO;
 
 INICIO ::= 
-    Global
-
-    IF
+    SENTENCIA:a    {: parser.raiz =(Nodo) a; :}               //se la raiz del arbol
     
-    Global
+  
 ;
 
 DECLARAR::=
-    Variable Asignacion Variable |
-    Variable Asignacion Cadena |
-    Variable Asignacion Numero |
-    Variable Asignacion Booleano
+    Variable:a Asignacion:b Cadena:c PuntoComa:d 
+            {:  ResultadoPython+=a +"="+c+"\n" ;
+                System.out.println(ResultadoPython);
+            Nodo padre = new Nodo("DECLARAR", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo(new Nodo("Variable", (String)a, aright, aleft));               //agregamos como hijo la variable
+            padre.AddHijo(new Nodo("igual",(String) b, bright, bleft));             //agregamos como hijo el signo igual
+            padre.AddHijo(new Nodo("Cadena", (String)c, bright, bleft));              //agregamos como hijola cadena 
+            padre.AddHijo(new Nodo("PuntoComa", (String)d, cright, cleft));               //agregamos como hijo el punto y coma
+            RESULT = padre;                                                 //retornamos el nodo padre
+                                                    :}
+
+    | Variable:a Asignacion:b ARITMETICA2:c PuntoComa:d
+            {: Nodo padre = new Nodo("DECLARAR", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo(new Nodo("Variable", (String)a, aright, aleft));               //agregamos como hijo la variable
+            padre.AddHijo(new Nodo("igual",(String) b, bright, bleft));             //agregamos como hijo el signo igual
+            padre.AddHijo((Nodo)c);              //agregamos como hijola 
+            padre.AddHijo(new Nodo("PuntoComa", (String)d, cright, cleft));               //agregamos como hijo el punto y coma
+            RESULT = padre;                                                 //retornamos el nodo padre
+                                                    :}
+    |Variable:a Asignacion:b Booleano:c PuntoComa:d
+            {: Nodo padre = new Nodo("DECLARAR", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo(new Nodo("Variable", (String)a, aright, aleft));               //agregamos como hijo la variable
+            padre.AddHijo(new Nodo("igual",(String) b, bright, bleft));             //agregamos como hijo el signo igual
+            padre.AddHijo(new Nodo("Cadena", (String)c, bright, bleft));              //agregamos como hijo el booleno
+            padre.AddHijo(new Nodo("PuntoComa", (String)d, cright, cleft));               //agregamos como hijo el punto y coma
+            RESULT = padre;                                                 //retornamos el nodo padre
+                                                    :}
+    |error PuntoComa
+    |error Comentario
 ;
 
+INCREMENTAR ::=
+    Variable OperadorIncremento
+      
+;
+
+ATRIBUIR ::=
+    Variable OperadorAtribucion Numero |
+    Variable OperadorAtribucion Variable 
+;
 
 SENTENCIA::=
-    DECLARAR  |
-    SENTENCIA DECLARAR 
+    SENTENCIA:a DECLARAR:b  
+                {: Nodo padre = new Nodo("SENTENCIA", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo((Nodo)a); 
+                padre.AddHijo((Nodo)b); 
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
+    |DECLARAR:a                       
+                {: Nodo padre = new Nodo("SENTENCIA", "", 0,0);  
+                padre.AddHijo((Nodo)a); 
+                RESULT = padre;                                               //retornamos el nodo padre      
+                :}
+  
+    |SENTENCIA INCREMENTAR |
+    INCREMENTAR |
+    SENTENCIA ATRIBUIR |
+    ATRIBUIR |
+    SENTENCIA:a RETORNAR:b 
+                {: Nodo padre = new Nodo("SENTENCIA", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo((Nodo)a); 
+                padre.AddHijo((Nodo)b); 
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
 
+    |SENTENCIA:a IF:b
+            {: Nodo padre = new Nodo("SENTENCIA", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo((Nodo)a); 
+                padre.AddHijo((Nodo)b); 
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
+    |IF:a
+            {: Nodo padre = new Nodo("SENTENCIA", "", 0,0);  
+                padre.AddHijo((Nodo)a); 
+                RESULT = padre;                                               //retornamos el nodo padre      
+                :}
+    |SENTENCIA SEGUN |
+    SEGUN:a 
+            {: Nodo padre = new Nodo("SENTENCIA", "", 0,0);  
+                padre.AddHijo((Nodo)a); 
+                RESULT = padre;                                               //retornamos el nodo padre      
+             :}
+    |SENTENCIA MIENTRAS|
+    MIENTRAS:a
+            {: Nodo padre = new Nodo("SENTENCIA", "", 0,0);  
+                padre.AddHijo((Nodo)a); 
+                RESULT = padre;                                               //retornamos el nodo padre      
+                :}
+    |SENTENCIA REPETIR|
+    REPETIR:a
+            {: Nodo padre = new Nodo("SENTENCIA", "", 0,0);  
+                padre.AddHijo((Nodo)a); 
+                RESULT = padre;                                               //retornamos el nodo padre      
+                :}
+    
+    |SENTENCIA EJECUTAR|
+    EJECUTAR:a
+            {: Nodo padre = new Nodo("SENTENCIA", "", 0,0);  
+                padre.AddHijo((Nodo)a); 
+                RESULT = padre;                                               //retornamos el nodo padre      
+                 :}
+    |SENTENCIA PARA|
+    PARA:a
+            {: Nodo padre = new Nodo("SENTENCIA", "", 0,0);  
+                padre.AddHijo((Nodo)a); 
+                RESULT = padre;                                               //retornamos el nodo padre      
+                 :}
+    |SENTENCIA FUNCION |
+    FUNCION |
+    SENTENCIA METODO |
+    METODO:a
+            {: Nodo padre = new Nodo("SENTENCIA", "", 0,0);  
+                padre.AddHijo((Nodo)a); 
+                RESULT = padre;                                               //retornamos el nodo padre      
+                :}
+    |SENTENCIA:a IMPRIMIR:b 
+            {: Nodo padre = new Nodo("SENTENCIA", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo((Nodo)a); 
+                padre.AddHijo((Nodo)b); 
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
+    |IMPRIMIR:a 
+            {: Nodo padre = new Nodo("SENTENCIA", "", 0,0);  
+                padre.AddHijo((Nodo)a); 
+                RESULT = padre;                                               //retornamos el nodo padre      
+                :}
+    |SENTENCIA INGRESAR |
+    INGRESAR |
+    SENTENCIA COMENTARIO |
+    COMENTARIO
+;
+
+COMPARADOR::=
+    ARITMETICA2:a OperadorRelacional:b ARITMETICA2:c 
+            {: Nodo padre = new Nodo("COMPARADOR", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo((Nodo)a);               //agregamos como hijo la aritmetica 
+            padre.AddHijo(new Nodo("OperadorRelacional",(String) b, bright, bleft));             //agregamos como hijo el entonces
+            padre.AddHijo((Nodo)c);              //agregamos como hijo la aritmetica
+            RESULT = padre;  
+                                :}
+    | ARITMETICA2:a OperadorRelacional:b Booleano:c
+            {: Nodo padre = new Nodo("COMPARADOR", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo((Nodo)a);               //agregamos como hijo la aritmetica 
+            padre.AddHijo(new Nodo("OperadorRelacional",(String) b, bright, bleft));             //agregamos como hijo el entonces
+            padre.AddHijo(new Nodo("BOOLEANO",(String) c, cright, cleft));             //agregamos como hijo el booleano
+            RESULT = padre;  
+                                :}
 ;
 
 SENTENCIABOOLEANA::=
-    Booleano |
-
-    Variable OperadorRelacional Booleano |
-    Variable OperadorRelacional Variable |
-    Variable OperadorRelacional Numero
-   
+    Booleano:a
+            {: Nodo padre = new Nodo("Booleano",(String) a, 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            RESULT = padre;  
+                                :}
+    |COMPARADOR:a
+        {: RESULT = a; :}
+    |SENTENCIABOOLEANA:a OperadorLogico:b COMPARADOR:c
+            {: Nodo padre = new Nodo("SENTENCIABOOLEANA", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo((Nodo)a);               //agregamos como hijo la la sentencia 1
+            padre.AddHijo(new Nodo("OperadorLogico",(String) b, bright, bleft));             //agregamos como hijo el operador logico
+            padre.AddHijo((Nodo)c);             //agregamos como hijo el comparador
+            RESULT = padre;  
+                                :}
+    |ARITMETICA:a
+            {: RESULT = a;  
+                                :}
 ;
 
 
 IF ::= 
-    Si ParentesisA SENTENCIABOOLEANA ParentesisC Entonces
-    SENTENCIA |
-    
-    IF DeloContrario SENTENCIA  FinSi
-    
+    Si:a  SENTENCIABOOLEANA:b Entonces:c SENTENCIA:d FinSi:e
+        {: Nodo padre = new Nodo("CICLO-IF", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo(new Nodo("Si", (String)a, aright, aleft));               //agregamos como hijo el si del ciclo
+            padre.AddHijo((Nodo)b);              //agregamos como hijo la sentenciabooleana
+            padre.AddHijo(new Nodo("Entonces",(String) c, cright, cleft));             //agregamos como hijo el entonces
+            padre.AddHijo((Nodo)d);              //agregamos como hijo la sentencia
+            padre.AddHijo(new Nodo("FinSI", (String)e, eright, eleft));               //agregamos como hijo el fin si
+            RESULT = padre;  
+                                :}
 
+    |Si SENTENCIABOOLEANA Entonces SENTENCIA 
+    OSi SENTENCIABOOLEANA  Entonces SENTENCIA
+    DeloContrario SENTENCIA  FinSi |
+
+    Si:a SENTENCIABOOLEANA:b Entonces:c SENTENCIA:d 
+    DeloContrario:e SENTENCIA:f  FinSi:g
+            {: Nodo padre = new Nodo("CICLO-IF", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo(new Nodo("Si", (String)a, aright, aleft));               //agregamos como hijo el si del ciclo
+            padre.AddHijo((Nodo)b);              //agregamos como hijo la sentenciabooleana
+            padre.AddHijo(new Nodo("Entonces",(String) c, cright, cleft));             //agregamos como hijo el entonces
+            padre.AddHijo((Nodo)d);              //agregamos como hijo la sentencia
+            padre.AddHijo(new Nodo("DeLoContrario",(String) e, eright, eleft));             //agregamos como hijo el delocontrario
+            padre.AddHijo((Nodo)f);              //agregamos como hijo la sentencia
+            padre.AddHijo(new Nodo("FinSI", (String)g, gright, gleft));               //agregamos como hijo el fin si
+            RESULT = padre;  
+                                :}
+    |error FinSi
+
+;
+
+SEGUN ::=
+        Segun:a Variable:b Hacer:c 
+        Numero:d Entonces:e SENTENCIA:f 
+        DeloContrario:g Entonces:h SENTENCIA:i FinSegun:j
+        {: Nodo padre = new Nodo("CICLO-SEGUN", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo(new Nodo("Segun", (String)a, aright, aleft));               //agregamos como hijo el segun del ciclo
+            padre.AddHijo(new Nodo("Variable", (String)b, bright, bleft));              //agregamos como hijo la variable
+            padre.AddHijo(new Nodo("Hacer",(String) c, cright, cleft));             //agregamos como hijo el hacer
+            padre.AddHijo(new Nodo("Valor",(String) d, dright, dleft));             //agregamos como hijo el valor
+            padre.AddHijo(new Nodo("Entonces",(String) e, eright, eleft));             //agregamos como hijo entonces
+            padre.AddHijo((Nodo)f);              //agregamos como hijo la sentencia
+            padre.AddHijo(new Nodo("DeLoContrario",(String) g, gright, gleft));             //agregamos como hijo el delocontrario
+            padre.AddHijo(new Nodo("Entonces",(String) h, hright, hleft));             //agregamos como hijo entonces
+            padre.AddHijo((Nodo)i);              //agregamos como hijo la sentencia
+            padre.AddHijo(new Nodo("FinSegun", (String)j, jright, jleft));               //agregamos como hijo el fin segun
+            RESULT = padre;  
+                                :}
+;
+
+PARA ::=
+    Para:a Variable:b Asignacion:c ARITMETICA2:d Hasta:e ARITMETICA2:f Hacer:g SENTENCIA:h   FinPara:i 
+            {: Nodo padre = new Nodo("CICLO-PARA", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo(new Nodo("Para", (String)a, aright, aleft));               //agregamos como hijo el para del ciclo
+            padre.AddHijo(new Nodo("Variable", (String)b, bright, bleft));              //agregamos como hijo la variable
+            padre.AddHijo(new Nodo("Asignacion",(String) c, cright, cleft));             //agregamos como hijo la asignacion
+            padre.AddHijo((Nodo)d);             //agregamos como hijo la aritmetica
+            padre.AddHijo(new Nodo("Hasta",(String) e, eright, eleft));             //agregamos como hijo hasta
+            padre.AddHijo((Nodo)f);              //agregamos como hijo la aritmetica
+            padre.AddHijo(new Nodo("Hacer",(String) g, gright, gleft));             //agregamos como hijo el hacer
+            padre.AddHijo((Nodo)h);             //agregamos como hijo la sentencia
+            padre.AddHijo(new Nodo("FinPara", (String)i, iright, ileft));               //agregamos como hijo el fin para
+            RESULT = padre;  
+                                :}
+
+    |Para Variable Asignacion ARITMETICA2 Hasta ARITMETICA2 Incremental ARITMETICA2 Hacer SENTENCIA
+    FinPara
+
+;
+
+MIENTRAS ::=
+    Mientras:a SENTENCIABOOLEANA:b Hacer:c SENTENCIA:d FinMientras:e
+            {: Nodo padre = new Nodo("CICLO-MIENTRAS", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo(new Nodo("Mientras", (String)a, aright, aleft));               //agregamos como hijo la palabra mientras
+            padre.AddHijo((Nodo)b);              //agregamos como hijo la sentenciabooleana
+            padre.AddHijo(new Nodo("Hacer",(String) c, cright, cleft));             //agregamos como hijo el entonces
+            padre.AddHijo((Nodo)d);              //agregamos como hijo la sentencia
+            padre.AddHijo(new Nodo("FinMientras", (String)e, eright, eleft));               //agregamos como hijo el fin si
+            RESULT = padre;  
+                                :}
+;
+
+REPETIR ::=
+    Repetir:a SENTENCIA:b HastaQue:c SENTENCIABOOLEANA:d
+            {: Nodo padre = new Nodo("CICLO-REPETIR", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo(new Nodo("Repetir", (String)a, aright, aleft));               //agregamos como hijo la palabra repetir
+            padre.AddHijo((Nodo)b);              //agregamos como hijo la sentencia
+            padre.AddHijo(new Nodo("HastaQue",(String) c, cright, cleft));             //agregamos como hijo el hasta que
+            padre.AddHijo((Nodo)d);              //agregamos como hijo la sentenciabooleana
+            RESULT = padre;  
+                                :}
+;
+
+RETORNAR ::=
+    Retornar:a ARITMETICA2:b
+            {: Nodo padre = new Nodo("RETORNAR", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo(new Nodo("Retornar", (String)a, aright, aleft));               //agregamos como hijo la palabra retornar
+            padre.AddHijo((Nodo)b);              //agregamos como hijo lo que retornara
+            RESULT = padre;  
+                                :}
+    |Retornar:a Booleano:b 
+            {: Nodo padre = new Nodo("RETORNAR", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo(new Nodo("Retornar", (String)a, aright, aleft));               //agregamos como hijo la palabra retornar
+            padre.AddHijo(new Nodo("Booleano", (String)b, bright, bleft));               //agregamos como hijo la palabra retornar
+            RESULT = padre;  
+                                :}
+;
+
+PARAMETROS ::=
+     Variable:b TipoDato:a
+            {: Nodo padre = new Nodo("PARAMETROS", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo(new Nodo("Variable", (String)b, bright, bleft));               //agregamos como hijo la variable
+                padre.AddHijo(new Nodo("Tipo", (String)a, aright, aleft));               //agregamos como hijo el tipo de dato
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
+    |PARAMETROS:a Coma:b  Variable:c  TipoDato:d
+            {: Nodo padre = new Nodo("PARAMETROS", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo((Nodo)a);                                     //se agregan los parametros anteriores
+                padre.AddHijo(new Nodo("Variable", (String)c, cright, cleft));               //agregamos como hijo la variable
+                padre.AddHijo(new Nodo("Tipo", (String)d, dright, dleft));               //agregamos como hijo el tipo de dato
+                RESULT = padre;  
+                :}
+;
+
+
+METODO ::=
+    Metodo:a Variable:b Parametros:c ParentesisA:d PARAMETROS:e  ParentesisC:f  SENTENCIA:g FinMetodo:h   
+            {: Nodo padre = new Nodo("METODO", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo(new Nodo("Metodo", (String)a, aright, aleft));               //agregamos como hijo la palabra metodo
+            padre.AddHijo(new Nodo("Nombre", (String)b, bright, bleft));               //agregamos como hijo el nombre del metodo
+            padre.AddHijo(new Nodo("ConParametros", (String)c, cright, cleft));               //agregamos como hijo el parametros
+            padre.AddHijo(new Nodo("ParentesisA", (String)d, dright, dleft));               //agregamos como hijo el parentesis
+            padre.AddHijo((Nodo)e);              //agregamos como hijo los parametros
+            padre.AddHijo(new Nodo("ParentesisC", (String)f, fright, fleft));               //agregamos como hijo el parentesis
+            padre.AddHijo((Nodo)g);              //agregamos como hijo la sentencia
+            padre.AddHijo(new Nodo("FinMetodo",(String) h, hright, hleft));             //agregamos como hijo el fin metodo
+            RESULT = padre;  
+                                :}
+    |Metodo:a Variable:b  ParentesisA:c ParentesisC:d  SENTENCIA:e  FinMetodo:f
+            {: Nodo padre = new Nodo("METODO", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo(new Nodo("Metodo", (String)a, aright, aleft));               //agregamos como hijo la palabra metodo
+            padre.AddHijo(new Nodo("Nombre", (String)b, bright, bleft));               //agregamos como hijo el nombre del metodo
+            padre.AddHijo(new Nodo("ParentesisA", (String)c, cright, cleft));               //agregamos como hijo el parentesis
+            padre.AddHijo(new Nodo("ParentesisC", (String)d, dright, dleft));               //agregamos como hijo el parentesis
+            padre.AddHijo((Nodo)e);              //agregamos como hijo la sentencia
+            padre.AddHijo(new Nodo("FinMetodo",(String) f, fright, fleft));             //agregamos como hijo el fin metodo
+            RESULT = padre;  
+                                :}
+;
+
+FUNCION ::=
+    Funcion Variable Parametros ParentesisA  PARAMETROS  ParentesisC SENTENCIA  FinFuncion |
+    Funcion Variable  SENTENCIA  FinFuncion
+;
+
+
+PARAMETROSEJECUTAR ::=
+    Cadena:a
+                {: Nodo padre = new Nodo("PARAMETROS", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo(new Nodo("Cadena", (String)a, aright, aleft));               //agregamos como hijo la cadena
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
+    |PARAMETROSEJECUTAR:c Coma:b Cadena:a 
+                {: Nodo padre = new Nodo("PARAMETROS", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo((Nodo)c);
+                padre.AddHijo(new Nodo("Coma", (String)b, bright, bleft));               //agregamos como hijo la coma
+                padre.AddHijo(new Nodo("Cadena", (String)a, aright, aleft));               //agregamos como hijo la cadena
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
+    |ARITMETICA2:a
+                {: Nodo padre = new Nodo("PARAMETROS", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo((Nodo)a);               //agregamos como hijo la aritmetica
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
+    |PARAMETROSEJECUTAR:c Coma:b ARITMETICA:a
+                {: Nodo padre = new Nodo("PARAMETROS", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo((Nodo)c);
+                padre.AddHijo(new Nodo("Coma", (String)b, bright, bleft));               //agregamos como hijo la coma
+                padre.AddHijo((Nodo)a);               //agregamos como hijo la aritmetica
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
+
+;
+EJECUTAR ::=
+    Ejecutar:a Variable:b ParentesisA:c ParentesisC:d   PuntoComa:e  
+                {: Nodo padre = new Nodo("EJECUTAR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo(new Nodo("Ejecutar", (String)a, aright, aleft));               //agregamos como hijo al ejecutar 
+                padre.AddHijo(new Nodo("Nombre", (String)b, bright, bleft));               //agregamos como hijo al nombre
+                padre.AddHijo(new Nodo("ParentesisA",(String) c, cright, cleft));             //agregamos como hijo el parentesis
+                padre.AddHijo(new Nodo("ParentesisC",(String) d, dright, dleft));             //agregamos como hijo el parentesis
+                padre.AddHijo(new Nodo("PuntoComa",(String) e, eright, eleft));             //agregamos como hijo el punto coma
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
+
+    |Ejecutar:a Variable:b ParentesisA:c  PARAMETROSEJECUTAR:f ParentesisC:d PuntoComa:e
+                {: Nodo padre = new Nodo("EJECUTAR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo(new Nodo("Ejecutar", (String)a, aright, aleft));               //agregamos como hijo al ejecutar 
+                padre.AddHijo(new Nodo("Nombre", (String)b, bright, bleft));               //agregamos como hijo al nombre
+                padre.AddHijo(new Nodo("ParentesisA",(String) c, cright, cleft));             //agregamos como hijo el parentesis
+                padre.AddHijo((Nodo)f); 
+                padre.AddHijo(new Nodo("ParentesisC",(String) d, dright, dleft));             //agregamos como hijo el parentesis
+                padre.AddHijo(new Nodo("PuntoComa",(String) e, eright, eleft));             //agregamos como hijo el punto coma
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
 ;
 
 
 
+POTENCIA ::=
+    Variable Potencia CorcheteA ARITMETICA CorcheteC |
+    Numero Potencia  CorcheteA ARITMETICA CorcheteC 
+;
+
+ARITMETICA2::= ARITMETICA:a    {: RESULT= a;:}         // retornamos el nodo que viene ya creado de declaracion
+;
+ARITMETICA ::=
+    ARITMETICA:a OperadorAritmetico:b Numero:c
+                {: Nodo padre = new Nodo("ARITMETICA", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo((Nodo)a); 
+                padre.AddHijo(new Nodo("OperadorAritmetico", (String)b, bright, bleft));               //agregamos como hijo al operador +-*/ 
+                padre.AddHijo(new Nodo("Numero",(String) c, cright, cleft));             //agregamos como hijo el signo igual 
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
+    |Numero:a 
+            {: Nodo padre = new Nodo("Numero", (String)a, 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            RESULT = padre;                                                 //retornamos el nodo padre
+                                                    :}
+    |ARITMETICA:a OperadorAritmetico:b Variable:c
+                {: Nodo padre = new Nodo("ARITMETICA", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo((Nodo)a); 
+                padre.AddHijo(new Nodo("OperadorAritmetico", (String)b, bright, bleft));               //agregamos como hijo al operador +-*/ 
+                padre.AddHijo(new Nodo("Variable",(String) c, cright, cleft));             //agregamos como hijo el signo igual 
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
+    |Variable:a 
+            {: Nodo padre = new Nodo("Variable", (String)a, 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            RESULT = padre;                                                 //retornamos el nodo padre
+                                                    :} 
+    |ARITMETICA OperadorAritmetico POTENCIA |
+    POTENCIA |
+    ARITMETICA:z OperadorAritmetico:y ParentesisA:a ARITMETICA:b ParentesisC:c
+    {: Nodo padre = new Nodo("ARITMETICA", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo((Nodo)z); 
+                padre.AddHijo(new Nodo("OperadorAritmetico", (String)y, yright, yleft));               //agregamos como hijo al operador +-*/ 
+                padre.AddHijo(new Nodo("ParentesisA", (String)a, aright, aleft));               //agregamos como hijo al parentesis abierto
+                padre.AddHijo((Nodo)b);  
+                padre.AddHijo(new Nodo("ParentesisC",(String) c, cright, cleft));             //agregamos como hijo el parentesis cerrado  
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
+
+    |ParentesisA:a ARITMETICA:b ParentesisC:c
+                {: Nodo padre = new Nodo("ARITMETICA", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo(new Nodo("ParentesisA", (String)a, aright, aleft));               //agregamos como hijo al parentesis abierto
+                padre.AddHijo((Nodo)b);  
+                padre.AddHijo(new Nodo("ParentesisC",(String) c, cright, cleft));             //agregamos como hijo el parentesis cerrado
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
+
+ 
+                 
+                
+;
+
+IMPRIMIR ::=
+    Imprimir:a ARITMETICA :b  PuntoComa:c 
+                {: Nodo padre = new Nodo("IMPRIMIR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo(new Nodo("Imprimir", (String)a, aright, aleft));               //agregamos como hijo como imprimir
+                padre.AddHijo((Nodo)b);  
+                padre.AddHijo(new Nodo("PuntoComa",(String) c, cright, cleft));             //agregamos como hijo el puntocoma
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
+
+    |Imprimir:a Cadena:b PuntoComa:c 
+                {: Nodo padre = new Nodo("IMPRIMIR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo(new Nodo("Imprimir", (String)a, aright, aleft));               //agregamos como hijo como imprimir
+                padre.AddHijo(new Nodo("Cadena",(String)b, bright, bleft));             //agregamos como hijo la cadena 
+                padre.AddHijo(new Nodo("PuntoComa",(String) c, cright, cleft));             //agregamos como hijo el puntocoma
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
+
+
+    |Imprimir:a EJECUTAR:b 
+                {: Nodo padre = new Nodo("IMPRIMIR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                padre.AddHijo(new Nodo("Imprimir", (String)a, aright, aleft));               //agregamos como hijo como imprimir
+                padre.AddHijo((Nodo)b);  
+                RESULT = padre;                                                 //retornamos el nodo padre
+                :}
+
+
+    |ImprimirSalto Variable  PuntoComa |
+    ImprimirSalto Cadena PuntoComa |
+    ImprimirSalto Numero PuntoComa
+    
+;
+
+INGRESAR ::=
+    Ingresar:a Variable:b Como:c TipoDato:d ConValor:e Cadena:f  PuntoComa:g 
+                
+    |Ingresar Variable Como TipoDato ConValor Caracter  PuntoComa |
+    Ingresar Variable Como TipoDato ConValor SENTENCIABOOLEANA  PuntoComa
+ 
+
+
+;
+
+COMENTARIO ::=
+    Comentario |
+    ComentarioMultilinea 
+;

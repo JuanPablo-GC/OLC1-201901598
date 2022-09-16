@@ -11,7 +11,7 @@ package codigo;
  */
 public enum Tokens {
     Reservadas,
-    Espacio, 
+    Linea, 
     
     Igual,
     Suma,
@@ -76,7 +76,7 @@ public enum Tokens {
     Imprimir,
     ImprimirSalto,
     
-    Letra,
+    //Letra,
     TipoDato,
     
     OperadorLogico,

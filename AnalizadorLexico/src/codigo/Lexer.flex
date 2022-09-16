@@ -1,11 +1,13 @@
 package codigo;
 import static codigo.Tokens.*;
+import java.util.ArrayList;
 %%
 %class Lexer
 %type Tokens
+%ignorecase 
 L=[a-zA-Z_]+
 D=[0-9]+
-espacio=[ \t\r\n]+
+espacio=[ \t\r]+
 %{
     public String lexeme;
 %}
@@ -15,6 +17,8 @@ if |
 else |
 while {lexeme=yytext(); return Reservadas;}
 {espacio} {/*ignore*/}
+
+("\n") {lexeme=yytext(); return Linea;}
 
 "=" {lexeme=yytext(); return Igual;}
 "+" {lexeme=yytext(); return Suma;}
@@ -35,18 +39,19 @@ while {lexeme=yytext(); return Reservadas;}
 /* variable */
 _[a-zA-Z0-9_]+_ {lexeme=yytext(); return Variable;}
 [0-9]+(\.[0-9]+?)? {lexeme=yytext(); return Numero;}
-\"[a-zA-Z0-9 ]+\" {lexeme=yytext(); return Cadena;}
+\"[^\"]*\" {lexeme=yytext(); return Cadena;}
 
 "Verdadero" {lexeme=yytext(); return Booleano;}
 "Falso" {lexeme=yytext(); return Booleano;}
-'{1}[a-zA-Z]{1}'{1} {lexeme=yytext(); return Caracter;}
+'{1}[a-zA-Z]{1}'{1}   {lexeme=yytext(); return Caracter;}
+\‘\$\{[4-9][0-9]\}\’   {lexeme=yytext(); return Caracter;}
 
 "inicio" {lexeme=yytext(); return Global;}
 "fin" {lexeme=yytext(); return Global;}
 
 
-\/\/.+ {lexeme=yytext(); return Comentario;}
-\/{1}\*{1}((.|\n)+(\n|.)+)*\*{1}\/{1} {lexeme=yytext(); return ComentarioMultilinea;}
+\/\/[^\n]*  {lexeme=yytext(); return Comentario;}
+\/\*[^*\/]*\*\/ {lexeme=yytext(); return ComentarioMultilinea;}
 
 "ingresar" {lexeme=yytext(); return Ingresar;}
 "como" {lexeme=yytext(); return Como;}
@@ -100,11 +105,11 @@ _[a-zA-Z0-9_]+_ {lexeme=yytext(); return Variable;}
 "imprimir" {lexeme=yytext(); return Imprimir;}
 "imprimir_nl" {lexeme=yytext(); return ImprimirSalto;}
 
-[a-zA-Z]{1} {lexeme=yytext(); return Letra;}
+//[a-zA-Z]{1} {lexeme=yytext(); return Letra;}
 
 
 /* tipo de dato*/
-( byte | int | char | long | float | double | string ) {lexeme=yytext(); return TipoDato;}
+( byte | numero | caracter | cadena | float | boolean | string ) {lexeme=yytext(); return TipoDato;}
 
 /* Operadores logicos */
 ( "and" | "or" | "not") {lexeme=yytext(); return OperadorLogico;}
@@ -128,4 +133,4 @@ _[a-zA-Z0-9_]+_ {lexeme=yytext(); return Variable;}
 
 
 
- .| [a-zA-Z0-9]+ {lexeme=yytext(); return ERROR;}
+ . {lexeme=yytext(); return ERROR;}

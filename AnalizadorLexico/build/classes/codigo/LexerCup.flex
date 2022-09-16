@@ -24,14 +24,13 @@ espacio=[ \t\r\n]+
         return new Symbol(type, yyline, yycolumn);
     }
 
-    String resultado="";
 %}
 %%
 
 if |
 else |
 while {return new Symbol(sym.Reservadas, yychar, yyline, yytext());}
-{espacio} {resultado += yytext();}
+{espacio} {/*Ignore*/}
 
 "=" {return new Symbol(sym.Igual, yychar, yyline, yytext());}
 "+" {return new Symbol(sym.OperadorAritmetico, yychar, yyline, yytext());}
@@ -43,59 +42,38 @@ while {return new Symbol(sym.Reservadas, yychar, yyline, yytext());}
 
 
 /* variable */
-_[a-zA-Z0-9_]+_ {
-    resultado += yytext();
-    return new Symbol(sym.Variable, yychar, yyline, yytext());}
-[0-9]+(\.[0-9]+)? {
-    resultado += yytext();
-    return new Symbol(sym.Numero, yychar, yyline, yytext());}
-\"[a-zA-Z0-9 ]+\" {
-    resultado += yytext();
-    return new Symbol(sym.Cadena, yychar, yyline, yytext());}
+_[a-zA-Z0-9_]+_ {return new Symbol(sym.Variable, yychar, yyline, yytext());}
+[0-9]+(\.[0-9]+)? {return new Symbol(sym.Numero, yychar, yyline, yytext());}
+\"[^\"]*\" {return new Symbol(sym.Cadena, yychar, yyline, yytext());}
 
 "verdadero" {return new Symbol(sym.Booleano, yychar, yyline, yytext());}
 "falso" {return new Symbol(sym.Booleano, yychar, yyline, yytext());}
 '{1}[a-zA-Z]{1}'{1} {return new Symbol(sym.Caracter, yychar, yyline, yytext());}
+\‘\$\{[4-9][0-9]\}\’ {return new Symbol(sym.Caracter, yychar, yyline, yytext());}
 
-"inicio" {
-    System.out.println("INICIA PYTHON");
-    return new Symbol(sym.Global, yychar, yyline, yytext());}
-"fin" {
-    System.out.println(resultado);    
-    return new Symbol(sym.Global, yychar, yyline, yytext());}
+"inicio" {return new Symbol(sym.Global, yychar, yyline, yytext());}
+"fin" {return new Symbol(sym.Global, yychar, yyline, yytext());}
 
-
-\/\/.+ {return new Symbol(sym.Comentario, yychar, yyline, yytext());}
-\/{1}\*{1}((.|\n)+(\n|.)+)*\*{1}\/{1} {return new Symbol(sym.ComentarioMultilinea, yychar, yyline, yytext());}
+/*Ignore*/
+\/\/[^\n]* {/*Ignore*/}
+\/\*[^*\/]*\*\/  {/*Ignore*/}
 
 "ingresar" {return new Symbol(sym.Ingresar, yychar, yyline, yytext());}
 "como" {return new Symbol(sym.Como, yychar, yyline, yytext());}
 "con_valor" {return new Symbol(sym.ConValor, yychar, yyline, yytext());}
 
 
-"->" {
-    resultado += "=";
-    return new Symbol(sym.Asignacion, yychar, yyline, yytext());}
+"->" {return new Symbol(sym.Asignacion, yychar, yyline, yytext());}
 ";" {return new Symbol(sym.PuntoComa, yychar, yyline, yytext());}
-"," {
-    resultado += yytext();
-    return new Symbol(sym.Coma, yychar, yyline, yytext());}
+"," {return new Symbol(sym.Coma, yychar, yyline, yytext());}
 
 
-//se reconoce el if y se traduce automaticamente 
-"si" {
-    resultado += "if ";
-    return new Symbol(sym.Si, yychar, yyline, yytext());}
-"entonces" {
-    resultado += " : ";
-    return new Symbol(sym.Entonces, yychar, yyline, yytext());}
+
+"si" {return new Symbol(sym.Si, yychar, yyline, yytext());}
+"entonces" {return new Symbol(sym.Entonces, yychar, yyline, yytext());}
 "fin_si" {return new Symbol(sym.FinSi, yychar, yyline, yytext());}
-"de_lo_contrario" {
-    resultado += "else: ";
-    return new Symbol(sym.DeloContrario, yychar, yyline, yytext());}
-o_si {
-    resultado += "elif ";
-    return new Symbol(sym.OSi, yychar, yyline, yytext());}
+"de_lo_contrario" {return new Symbol(sym.DeloContrario, yychar, yyline, yytext());}
+o_si {return new Symbol(sym.OSi, yychar, yyline, yytext());}
 
 "segun" {return new Symbol(sym.Segun, yychar, yyline, yytext());}
 "hacer" {return new Symbol(sym.Hacer, yychar, yyline, yytext());}
@@ -117,9 +95,7 @@ o_si {
 
 
 /* retornar*/
-"retornar" {
-    resultado += "return";
-    return new Symbol(sym.Retornar, yychar, yyline, yytext());}
+"retornar" {return new Symbol(sym.Retornar, yychar, yyline, yytext());}
 
 
 "metodo" {return new Symbol(sym.Metodo, yychar, yyline, yytext());}
@@ -143,36 +119,27 @@ o_si {
 ( numero | cadena | boolean | caracter ) {return new Symbol(sym.TipoDato, yychar, yyline, yytext());}
 
 /* Operadores logicos */
-( and | or | not) {return new Symbol(sym.OperadorLogico, yychar, yyline, yytext());}
+( and | or ) {return new Symbol(sym.OperadorLogico, yychar, yyline, yytext());}
+( not) {return new Symbol(sym.Not, yychar, yyline, yytext());}
 
 
 /*Operadores Relacionales */
-( "mayor" ) {
-    resultado += ">";
-    return new Symbol(sym.OperadorRelacional, yychar, yyline, yytext());}
+( "mayor" ) {return new Symbol(sym.OperadorRelacional, yychar, yyline, yytext());}
  ("menor" | "mayor_o_igual" | "menor_o_igual" | "es_igual" | "es_diferente" ) {return new Symbol(sym.OperadorRelacional, yychar, yyline, yytext());}
 
 /* Operadores Atribucion */
-( "+=" | "-="  | "*=" | "/=" | "%=" ) {
-                                    resultado += yytext();
-                                    return new Symbol(sym.OperadorAtribucion, yychar, yyline, yytext());}
+( "+=" | "-="  | "*=" | "/=" | "%=" ) {return new Symbol(sym.OperadorAtribucion, yychar, yyline, yytext());}
 
 /* Operadores Incremento y decremento */
 ( "++" | "--" ) {return new Symbol(sym.OperadorIncremento, yychar, yyline, yytext());}
 
 /* Parentesis etc  */
-"(" {
-    resultado += yytext();
-    return new Symbol(sym.ParentesisA, yychar, yyline, yytext());}
-")" {
-    resultado += yytext();
-    return new Symbol(sym.ParentesisC, yychar, yyline, yytext());}
+"(" {return new Symbol(sym.ParentesisA, yychar, yyline, yytext());}
+")" {return new Symbol(sym.ParentesisC, yychar, yyline, yytext());}
 "{" {return new Symbol(sym.LLaveA, yychar, yyline, yytext());}
 "}" {return new Symbol(sym.LLaveC, yychar, yyline, yytext());}
 "[" {return new Symbol(sym.CorcheteA, yychar, yyline, yytext());}
 "]" {return new Symbol(sym.CorcheteC, yychar, yyline, yytext());}
 
 
- .| [a-zA-Z0-9]+ {
-        System.out.println("ERROR Lexico :"+ yytext()+ "  Linea: " + (yyline+1) +" Columna: "+(yycolumn +1) );
-        return new Symbol(sym.ERROR,yyline, yycolumn, yytext());}
+ . {/*Ignore*/}

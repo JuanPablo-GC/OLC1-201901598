@@ -7,6 +7,7 @@ package codigo;
 
 import com.sun.xml.internal.ws.api.ha.StickyFeature;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,6 +19,9 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
@@ -43,14 +47,14 @@ public class FrmPrincipal extends javax.swing.JFrame {
         initComponents();
         this.setLocationRelativeTo(null);
     }
- 
+    public ArrayList<String> errores = new ArrayList<String>();
     private void analizarLexico(){
         
         
-        
+        //.toLowerCase()
         try {
-            String expr= (String) txtAnalizar.getText().toLowerCase();
-
+            String expr= (String) txtAnalizar.getText();
+            System.out.println(expr);
             Lexer lexer = new Lexer(new StringReader(expr));
             String resultado="";
 
@@ -64,6 +68,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 switch (tokens){
                     case ERROR:
                         resultado+= lexer.lexeme +" : ***** Simbolo no definido *****\n";
+                        errores.add(lexer.lexeme);
                         break;
                         
                     case Variable: case Numero: case Reservadas:
@@ -144,7 +149,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         break;
                         
                     //para condicionales i>23 ETC
-                    case Letra: case TipoDato: case OperadorLogico: case OperadorRelacional: case OperadorAtribucion: case OperadorIncremento:
+                    case TipoDato: case OperadorLogico: case OperadorRelacional: case OperadorAtribucion: case OperadorIncremento:
                         resultado+= lexer.lexeme + ": Es un "+ tokens +"\n";
                         break;
                         
@@ -154,9 +159,9 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         break;
                         
                     //para espacio, tabulaciones etc 
-                    case Espacio:
-                    //resultado+= lexer.lexeme + ": Es un "+ tokens +"\n";
-                        break;
+                    case Linea:
+                        resultado+= "*****SALTO DE LINEA*****";
+                    //    break;
                     
                     default:
                         resultado += "TOKEN: "+ tokens + "*****\n";
@@ -194,13 +199,16 @@ public class FrmPrincipal extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         txtSintactico = new javax.swing.JTextArea();
         btnGraficar = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        txtErrores = new javax.swing.JTextField();
         jMenuBar2 = new javax.swing.JMenuBar();
         jMenu3 = new javax.swing.JMenu();
         btnAbrirArchivo = new javax.swing.JMenuItem();
         btnGuardarContenido = new javax.swing.JMenuItem();
         jMenu4 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
-        jMenuItem3 = new javax.swing.JMenuItem();
+        btnErrores = new javax.swing.JMenuItem();
 
         jMenu1.setText("File");
         jMenuBar1.add(jMenu1);
@@ -253,6 +261,32 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         });
 
+        jLabel1.setText("ERRORES");
+
+        txtErrores.setEditable(false);
+        txtErrores.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(35, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtErrores, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addGap(24, 24, 24))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(txtErrores, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1)
+                .addGap(33, 33, 33))
+        );
+
         jMenu3.setText("ARCHIVO");
 
         btnAbrirArchivo.setText("ABRIR");
@@ -278,8 +312,13 @@ public class FrmPrincipal extends javax.swing.JFrame {
         jMenuItem2.setText("DIAGRAMA");
         jMenu4.add(jMenuItem2);
 
-        jMenuItem3.setText("ERRORES");
-        jMenu4.add(jMenuItem3);
+        btnErrores.setText("ERRORES");
+        btnErrores.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnErroresActionPerformed(evt);
+            }
+        });
+        jMenu4.add(btnErrores);
 
         jMenuBar2.add(jMenu4);
 
@@ -304,8 +343,9 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnGraficar)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(30, Short.MAX_VALUE))))
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -326,15 +366,20 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     .addComponent(btnAnalizar))
                 .addGap(28, 28, 28)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE)
-                    .addComponent(jScrollPane2))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 415, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnSintactico)
-                    .addComponent(btnGraficar))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnSintactico)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(33, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnGraficar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(25, 25, 25))))
         );
 
         pack();
@@ -370,9 +415,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
         s = new Sintax(new codigo.LexerCup(new StringReader(ST)));
         
         
-        
+        s.estado=1;
         try {
             s.parse();
+            
             txtSintactico.setText("Analisis Sintactico Correcto");
             txtSintactico.setForeground(Color.blue);
             
@@ -426,6 +472,12 @@ public class FrmPrincipal extends javax.swing.JFrame {
         // TODO add your handling code here:
         guardarContenido();
     }//GEN-LAST:event_btnGuardarContenidoActionPerformed
+
+    private void btnErroresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnErroresActionPerformed
+        // TODO add your handling code here:
+        VerErrores();
+        abrirReporteErrores();
+    }//GEN-LAST:event_btnErroresActionPerformed
 
     /**
      * @param args the command line arguments
@@ -484,20 +536,107 @@ public class FrmPrincipal extends javax.swing.JFrame {
             BufferedWriter bw = new BufferedWriter(fw);
             bw.write(contenido);
             bw.close();
-            JOptionPane.showMessageDialog(null, "Archivo guardado con exito", "Informacion", JOptionPane.INFORMATION_MESSAGE);
+            //JOptionPane.showMessageDialog(null, "Archivo guardado con exito", "Informacion", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             e.printStackTrace();
         }
         
     }
     
+    
+    public void VerErrores(){
+        String codigoHTML= "<!DOCTYPE html> \n"
++"<html>\n"
++"<style>\n"
++"table, th, td {\n"
++"  border:1px solid black;\n"
++"}\n"
++"</style>\n"
++"<body>\n"
++"<div style=\"text-align: center;\"> <img src=\"http://www.ingenieria.cunoc.usac.edu.gt/portal/images/logo-usac%20(copia).png\" > \n"
++"</div> \n"
++"<div style=\"text-align: center;\">\n"
++"<h2>Juan Pablo Garcia ceballos</h2>\n"
++"<h2>Carne: 201901598</h2>\n"
++"<h2>Organización de Lenguajes y Compiladores 1</h2>\n"
++"<h2>Proyecto 1</h2>\n"
++"</div>\n"
++"<p style=\"text-align: center;\"><strong> <br /></strong></p>\n"
++"<p style=\"text-align: center;\"><strong> <br /></strong></p>\n"
++"<p style=\"text-align: center;\"><strong> <br /></strong></p>\n"
++"<h1>TABLA DE ERRORES</h1>\n"
++"<table style=\"width:100%\">\n"
++"  <tr>\n"
++"    <th>TIPO DE ERROR</th>\n"
++"    <th>LEXEMA</th>\n"
++"    <th>DESCRIPCION</th>\n"
++"  </tr>\n";
+        for (Object lexicos : errores) {
+        codigoHTML+=("<tr><td>Lexico</td><td>"+ lexicos+"</td><td>Lexema no definido</td></tr> \n");
+        
+                
+        }
+        ArrayList a = s.getErrores();
+        for (Object sintacticos : a) {
+        codigoHTML+=("<tr><td>Sintactico</td><td>"+ sintacticos+"</td><td>simbolo no esperado</td></tr> \n ");
+        }
+codigoHTML+= "</table> \n"
++"<p style=\"text-align: center;\"><strong> <br /></strong></p>\n"
++"<p style=\"text-align: center;\"><strong> <br /></strong></p>\n"
++"<p style=\"text-align: center;\"><strong> <br /></strong></p>\n"
++"</body>"
++"</html>";
+        int tamañoErrores=errores.size()+ a.size();
+        txtErrores.setText(String.valueOf(tamañoErrores));
+        errores.clear();
+        //System.out.println(codigoHTML);
+        
+        
+        try {
+            //String ruta = "D:/Descargas/SEMESTRE 2022/COMPILADORES 1/LAB/AnalizadorLexico/Contenido.txt";
+
+            File file = new File("D:/Descargas/SEMESTRE 2022/COMPILADORES 1/LAB/AnalizadorLexico/errores.html");
+            // Si el archivo no existe es creado
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileWriter fw = new FileWriter(file);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(codigoHTML);
+            bw.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void abrirReporteErrores(){
+        try
+        {
+            File file = new File("D:/Descargas/SEMESTRE 2022/COMPILADORES 1/LAB/AnalizadorLexico/errores.html");
+            if(!Desktop.isDesktopSupported())
+            {
+                System.out.println("not supported");
+                return;
+            }
+            Desktop desktop = Desktop.getDesktop();
+            if(file.exists())
+                desktop.open(file);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAbrir;
     private javax.swing.JMenuItem btnAbrirArchivo;
     private javax.swing.JButton btnAnalizar;
+    private javax.swing.JMenuItem btnErrores;
     private javax.swing.JButton btnGraficar;
     private javax.swing.JMenuItem btnGuardarContenido;
     private javax.swing.JButton btnSintactico;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
@@ -505,11 +644,12 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuBar jMenuBar2;
     private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextArea txtAnalizar;
+    private javax.swing.JTextField txtErrores;
     private javax.swing.JTextArea txtResultado;
     private javax.swing.JTextArea txtSintactico;
     // End of variables declaration//GEN-END:variables

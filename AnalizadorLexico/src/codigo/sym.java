@@ -8,76 +8,82 @@ package codigo;
 /** CUP generated class containing symbol constants. */
 public class sym {
   /* terminals */
-  public static final int FinSi = 20;
-  public static final int PuntoComa = 16;
-  public static final int Coma = 17;
-  public static final int Metodo = 35;
-  public static final int FinMientras = 31;
-  public static final int OperadorIncremento = 49;
-  public static final int Potencia = 5;
-  public static final int Variable = 6;
-  public static final int Reservadas = 2;
-  public static final int Repetir = 32;
-  public static final int Ingresar = 12;
-  public static final int OperadorRelacional = 46;
-  public static final int OperadorAritmetico = 4;
-  public static final int Asignacion = 15;
+  public static final int FinSi = 21;
+  public static final int PuntoComa = 17;
+  public static final int Coma = 18;
+  public static final int Metodo = 36;
+  public static final int FinMientras = 32;
+  public static final int OperadorIncremento = 55;
+  public static final int Potencia = 4;
+  public static final int Variable = 5;
+  public static final int Repetir = 33;
+  public static final int Ingresar = 13;
+  public static final int OperadorRelacional = 52;
+  public static final int OperadorAritmetico = 3;
+  public static final int Asignacion = 16;
   public static final int Booleano = 9;
-  public static final int Retornar = 34;
-  public static final int FinMetodo = 36;
-  public static final int Para = 26;
-  public static final int ImprimirSalto = 43;
-  public static final int Ejecutar = 40;
-  public static final int FinFuncion = 39;
-  public static final int Cadena = 8;
-  public static final int Segun = 23;
-  public static final int Hacer = 24;
+  public static final int Retornar = 35;
+  public static final int FinMetodo = 37;
+  public static final int Para = 27;
+  public static final int ImprimirSalto = 44;
+  public static final int OperadorRelacionalMMM = 49;
+  public static final int Ejecutar = 41;
+  public static final int FinFuncion = 40;
+  public static final int Cadena = 7;
+  public static final int Segun = 24;
+  public static final int Hacer = 25;
   public static final int EOF = 0;
   public static final int Global = 11;
-  public static final int CorcheteC = 55;
-  public static final int Not = 47;
-  public static final int OperadorLogico = 45;
+  public static final int Booleano1 = 8;
+  public static final int CorcheteC = 61;
+  public static final int Not = 53;
+  public static final int OperadorLogico = 46;
   public static final int error = 1;
-  public static final int CorcheteA = 54;
-  public static final int Funcion = 38;
-  public static final int Imprimir = 42;
-  public static final int Incremental = 29;
-  public static final int ERROR = 56;
-  public static final int ConValor = 14;
-  public static final int FinPara = 28;
-  public static final int OSi = 22;
-  public static final int DeloContrario = 21;
-  public static final int HastaQue = 33;
-  public static final int Entonces = 19;
-  public static final int Parametros = 37;
-  public static final int LLamada = 41;
-  public static final int Si = 18;
+  public static final int CorcheteA = 60;
+  public static final int Funcion = 39;
+  public static final int Imprimir = 43;
+  public static final int OperadorRelacionalM = 47;
+  public static final int Incremental = 30;
+  public static final int ConValor = 15;
+  public static final int FinPara = 29;
+  public static final int OSi = 23;
+  public static final int DeloContrario = 22;
+  public static final int OperadorRelacionalMMMM = 50;
+  public static final int HastaQue = 34;
+  public static final int Entonces = 20;
+  public static final int Parametros = 38;
+  public static final int LLamada = 42;
+  public static final int Global2 = 12;
+  public static final int OperadorRelacionalMM = 48;
+  public static final int Si = 19;
   public static final int Caracter = 10;
-  public static final int OperadorAtribucion = 48;
-  public static final int Mientras = 30;
-  public static final int ParentesisC = 51;
-  public static final int ParentesisA = 50;
-  public static final int Como = 13;
-  public static final int LLaveC = 53;
-  public static final int Hasta = 27;
-  public static final int Numero = 7;
-  public static final int TipoDato = 44;
-  public static final int LLaveA = 52;
-  public static final int Igual = 3;
-  public static final int FinSegun = 25;
+  public static final int OperadorAtribucion = 54;
+  public static final int Mientras = 31;
+  public static final int ParentesisC = 57;
+  public static final int ParentesisA = 56;
+  public static final int Como = 14;
+  public static final int LLaveC = 59;
+  public static final int Hasta = 28;
+  public static final int Numero = 6;
+  public static final int TipoDato = 45;
+  public static final int LLaveA = 58;
+  public static final int Igual = 2;
+  public static final int OperadorRelacionalMMMMM = 51;
+  public static final int FinSegun = 26;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
-  "Reservadas",
   "Igual",
   "OperadorAritmetico",
   "Potencia",
   "Variable",
   "Numero",
   "Cadena",
+  "Booleano1",
   "Booleano",
   "Caracter",
   "Global",
+  "Global2",
   "Ingresar",
   "Como",
   "ConValor",
@@ -112,6 +118,11 @@ public class sym {
   "ImprimirSalto",
   "TipoDato",
   "OperadorLogico",
+  "OperadorRelacionalM",
+  "OperadorRelacionalMM",
+  "OperadorRelacionalMMM",
+  "OperadorRelacionalMMMM",
+  "OperadorRelacionalMMMMM",
   "OperadorRelacional",
   "Not",
   "OperadorAtribucion",
@@ -121,8 +132,7 @@ public class sym {
   "LLaveA",
   "LLaveC",
   "CorcheteA",
-  "CorcheteC",
-  "ERROR"
+  "CorcheteC"
   };
 }
 

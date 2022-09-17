@@ -54,7 +54,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         //.toLowerCase()
         try {
             String expr= (String) txtAnalizar.getText();
-            System.out.println(expr);
+            //System.out.println(expr);
             Lexer lexer = new Lexer(new StringReader(expr));
             String resultado="";
 
@@ -202,6 +202,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         txtErrores = new javax.swing.JTextField();
+        btnPython = new javax.swing.JButton();
         jMenuBar2 = new javax.swing.JMenuBar();
         jMenu3 = new javax.swing.JMenu();
         btnAbrirArchivo = new javax.swing.JMenuItem();
@@ -287,6 +288,14 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 .addGap(33, 33, 33))
         );
 
+        btnPython.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        btnPython.setText("Codigo Python");
+        btnPython.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPythonActionPerformed(evt);
+            }
+        });
+
         jMenu3.setText("ARCHIVO");
 
         btnAbrirArchivo.setText("ABRIR");
@@ -344,7 +353,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnGraficar)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnPython)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnGraficar))
                             .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(30, Short.MAX_VALUE))))
             .addGroup(layout.createSequentialGroup()
@@ -374,9 +386,11 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         .addComponent(btnSintactico)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(33, Short.MAX_VALUE))
+                        .addContainerGap(39, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnGraficar)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnGraficar)
+                            .addComponent(btnPython))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(25, 25, 25))))
@@ -388,6 +402,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private void btnAnalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalizarActionPerformed
         // TODO add your handling code here:
         analizarLexico();
+        sintactico();
+        VerErrores();
     }//GEN-LAST:event_btnAnalizarActionPerformed
 
     private void btnAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirActionPerformed
@@ -408,6 +424,32 @@ public class FrmPrincipal extends javax.swing.JFrame {
         
     }//GEN-LAST:event_btnAbrirActionPerformed
     Sintax s;
+    
+    public void sintactico(){
+        String ST= txtAnalizar.getText();
+        s = new Sintax(new codigo.LexerCup(new StringReader(ST)));
+        
+        
+        s.estado=1;
+        try {
+            s.parse();
+            
+            txtSintactico.setText("Analisis Sintactico Correcto");
+            txtSintactico.setForeground(Color.blue);
+            
+            
+            
+        } catch (Exception ex) {
+            
+            
+            
+            Symbol sym = s.getS();
+            txtSintactico.setText("Error de Sintaxis    Linea: "+(sym.right+1)+" Columna: "+(sym.left+1)+" Texto: "+ sym.value );
+            txtSintactico.setForeground(Color.red);
+            
+        }
+        
+    }
     private void btnSintacticoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSintacticoActionPerformed
         // TODO add your handling code here:
         
@@ -415,7 +457,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         s = new Sintax(new codigo.LexerCup(new StringReader(ST)));
         
         
-        s.estado=1;
+        s.estado=2;
         try {
             s.parse();
             
@@ -475,9 +517,17 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
     private void btnErroresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnErroresActionPerformed
         // TODO add your handling code here:
-        VerErrores();
+        //VerErrores();
         abrirReporteErrores();
     }//GEN-LAST:event_btnErroresActionPerformed
+
+    private void btnPythonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPythonActionPerformed
+        // TODO add your handling code here:
+        JOptionPane.showMessageDialog(null,
+                s.ResultadoPython,
+                "Codigo en Python",
+                JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_btnPythonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -567,18 +617,22 @@ public class FrmPrincipal extends javax.swing.JFrame {
 +"<h1>TABLA DE ERRORES</h1>\n"
 +"<table style=\"width:100%\">\n"
 +"  <tr>\n"
++      "<th>No.</th>\n"
 +"    <th>TIPO DE ERROR</th>\n"
 +"    <th>LEXEMA</th>\n"
 +"    <th>DESCRIPCION</th>\n"
 +"  </tr>\n";
+        int contador=0;
         for (Object lexicos : errores) {
-        codigoHTML+=("<tr><td>Lexico</td><td>"+ lexicos+"</td><td>Lexema no definido</td></tr> \n");
+              contador+=1;
+        codigoHTML+=("<tr><td>"+contador+"</td><td>Lexico</td><td>"+ lexicos+"</td><td>Lexema no definido</td></tr> \n");
         
                 
         }
         ArrayList a = s.getErrores();
         for (Object sintacticos : a) {
-        codigoHTML+=("<tr><td>Sintactico</td><td>"+ sintacticos+"</td><td>simbolo no esperado</td></tr> \n ");
+              contador+=1;
+        codigoHTML+=("<tr><td>"+contador+"<td>Sintactico</td><td>"+ sintacticos+"</td><td>simbolo no esperado</td></tr> \n ");
         }
 codigoHTML+= "</table> \n"
 +"<p style=\"text-align: center;\"><strong> <br /></strong></p>\n"
@@ -635,6 +689,7 @@ codigoHTML+= "</table> \n"
     private javax.swing.JMenuItem btnErrores;
     private javax.swing.JButton btnGraficar;
     private javax.swing.JMenuItem btnGuardarContenido;
+    private javax.swing.JButton btnPython;
     private javax.swing.JButton btnSintactico;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JMenu jMenu1;

@@ -3,14 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/Descargas/SEMESTRE%202022/COMPILADORES%201/LAB/AnalizadorLexico/src/codigo/Lexer.java</file>
             <file>file:/D:/Descargas/SEMESTRE%202022/COMPILADORES%201/LAB/AnalizadorLexico/src/codigo/FrmPrincipal.java</file>
             <file>file:/D:/Descargas/SEMESTRE%202022/COMPILADORES%201/LAB/AnalizadorLexico/src/codigo/Sintax.cup</file>
             <file>file:/D:/Descargas/SEMESTRE%202022/COMPILADORES%201/LAB/AnalizadorLexico/src/codigo/Principal.java</file>
-            <file>file:/D:/Descargas/SEMESTRE%202022/COMPILADORES%201/LAB/AnalizadorLexico/src/codigo/Lexer.flex</file>
             <file>file:/D:/Descargas/SEMESTRE%202022/COMPILADORES%201/LAB/AnalizadorLexico/src/codigo/Sintax.java</file>
             <file>file:/D:/Descargas/SEMESTRE%202022/COMPILADORES%201/LAB/AnalizadorLexico/src/codigo/LexerCup.flex</file>
-            <file>file:/D:/Descargas/SEMESTRE%202022/COMPILADORES%201/LAB/AnalizadorLexico/src/codigo/Tokens.java</file>
         </group>
     </open-files>
 </project-private>

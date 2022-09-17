@@ -62,14 +62,10 @@ public class Arbol {
             escritor.close();
             fichero.close();
             System.out.println(" .dot Generado ");
-            
-            /* Exiten varias formas de generar el .dot
-              A continuacion se presentan dos metodos reportar() y GenerarJpg() los cuales ambos hacen lo mismo generan la imagen del .dot
-              Prueben ambos y solo llamar el metodo que abra la imagen .jpg el otro metodo comentarlo
-              -- Si les genera la imagen con ambos metodos dejen del de su preferencia y comentar el otro metodo 
+
               
-              La imagen y el .dot se guardan dentro de la carpeta del proyecto
-            */
+             // La imagen y el .dot se guardan dentro de la carpeta del proyecto
+           
             
             //GenerarJpg();
             reportar();

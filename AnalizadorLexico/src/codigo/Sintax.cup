@@ -31,12 +31,11 @@ parser code
         return this.s;
     }
 
-    public String ResultadoPython="";
+    public String ResultadoPython="if __name__ == '__main__': \n    main() \n";
     public int estado=1;
-    public String temporal="";
 :};
 
-terminal Reservadas,
+terminal 
     Igual,
     OperadorAritmetico,
     Potencia,
@@ -44,10 +43,12 @@ terminal Reservadas,
     Variable,
     Numero,
     Cadena,
+    Booleano1,
     Booleano,
     Caracter,
     
     Global,
+    Global2,
     //Comentario,
     //ComentarioMultilinea,
     Ingresar,
@@ -100,6 +101,11 @@ terminal Reservadas,
     TipoDato,
     
     OperadorLogico,
+    OperadorRelacionalM,
+    OperadorRelacionalMM,
+    OperadorRelacionalMMM,
+    OperadorRelacionalMMMM,
+    OperadorRelacionalMMMMM,
     OperadorRelacional,
     Not,
     OperadorAtribucion,
@@ -111,9 +117,7 @@ terminal Reservadas,
     LLaveA,
     LLaveC,
     CorcheteA, 
-    CorcheteC, 
-    
-    ERROR;
+    CorcheteC ;
     
 
 
@@ -167,8 +171,10 @@ DECLARAR::=
                                                     :} */
      //si hay un error pasa el error y retorna el nodo nulo 
     |error PuntoComa
-            {: Nodo padre = new Nodo("ERROR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
-                RESULT = padre;                                                 //retornamos el nodo padre
+            {: if (estado==1){RESULT = " ";}
+           if (estado==2){ 
+                Nodo padre = new Nodo("ERROR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                RESULT = padre;   }                                             //retornamos el nodo padre
                 :}
 
 ;
@@ -237,9 +243,11 @@ SENTENCIA::=
                 RESULT = padre;  }                                               //retornamos el nodo padre
                 :}
     |SEGUN:a 
-            {: Nodo padre = new Nodo("SENTENCIA", "", 0,0);  
+            {: if (estado==1){RESULT =  String.valueOf(a);}
+               if (estado==2){
+                Nodo padre = new Nodo("SENTENCIA", "", 0,0);  
                 padre.AddHijo((Nodo)a); 
-                RESULT = padre;                                               //retornamos el nodo padre      
+                RESULT = padre; }                                              //retornamos el nodo padre      
              :}
     |SENTENCIA:a MIENTRAS:b
             {: if (estado==1){RESULT =  String.valueOf(a)+String.valueOf(b);}
@@ -374,6 +382,16 @@ SENTENCIA::=
 
 COMPARADOR::=
     ARITMETICA2:a OperadorRelacional:b ARITMETICA2:c 
+            {:  if(estado==1){  RESULT=  String.valueOf(a)+" != "+ String.valueOf(c);}
+           if(estado==2){
+            Nodo padre = new Nodo("COMPARADOR", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo((Nodo)a);               //agregamos como hijo la aritmetica 
+            padre.AddHijo(new Nodo("OperadorRelacional",(String) b, bright, bleft));             //agregamos como hijo el entonces
+            padre.AddHijo((Nodo)c);              //agregamos como hijo la aritmetica
+            RESULT = padre;  }
+                                    :}
+//operador mayor                            
+    |ARITMETICA2:a OperadorRelacionalM:b ARITMETICA2:c 
             {:  if(estado==1){  RESULT=  String.valueOf(a)+" > "+ String.valueOf(c);}
            if(estado==2){
             Nodo padre = new Nodo("COMPARADOR", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
@@ -382,21 +400,58 @@ COMPARADOR::=
             padre.AddHijo((Nodo)c);              //agregamos como hijo la aritmetica
             RESULT = padre;  }
                                 :}
-/*
-    | ARITMETICA2:a OperadorRelacional:b Booleano:c
-            {:  if(estado==1){  RESULT=  String.valueOf(a)+">"+ String.valueOf(c);}
+//operador menor 
+    |ARITMETICA2:a OperadorRelacionalMM:b ARITMETICA2:c 
+            {:  if(estado==1){  RESULT=  String.valueOf(a)+" < "+ String.valueOf(c);}
            if(estado==2){
             Nodo padre = new Nodo("COMPARADOR", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
             padre.AddHijo((Nodo)a);               //agregamos como hijo la aritmetica 
             padre.AddHijo(new Nodo("OperadorRelacional",(String) b, bright, bleft));             //agregamos como hijo el entonces
-            padre.AddHijo(new Nodo("BOOLEANO",(String) c, cright, cleft));             //agregamos como hijo el booleano
-            RESULT = padre;  
-                                :}*/
+            padre.AddHijo((Nodo)c);              //agregamos como hijo la aritmetica
+            RESULT = padre;  }
+                                :}
+//operador MAYOR IGUAL  
+    |ARITMETICA2:a OperadorRelacionalMMM:b ARITMETICA2:c 
+            {:  if(estado==1){  RESULT=  String.valueOf(a)+" >= "+ String.valueOf(c);}
+           if(estado==2){
+            Nodo padre = new Nodo("COMPARADOR", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo((Nodo)a);               //agregamos como hijo la aritmetica 
+            padre.AddHijo(new Nodo("OperadorRelacional",(String) b, bright, bleft));             //agregamos como hijo el entonces
+            padre.AddHijo((Nodo)c);              //agregamos como hijo la aritmetica
+            RESULT = padre;  }
+                                :}
+//operador MENOR IGUAL  
+    |ARITMETICA2:a OperadorRelacionalMMMM:b ARITMETICA2:c 
+            {:  if(estado==1){  RESULT=  String.valueOf(a)+" <= "+ String.valueOf(c);}
+           if(estado==2){
+            Nodo padre = new Nodo("COMPARADOR", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo((Nodo)a);               //agregamos como hijo la aritmetica 
+            padre.AddHijo(new Nodo("OperadorRelacional",(String) b, bright, bleft));             //agregamos como hijo el entonces
+            padre.AddHijo((Nodo)c);              //agregamos como hijo la aritmetica
+            RESULT = padre;  }
+                                :}
+//operador IGUAL  
+    |ARITMETICA2:a OperadorRelacionalMMMMM:b ARITMETICA2:c 
+            {:  if(estado==1){  RESULT=  String.valueOf(a)+" == "+ String.valueOf(c);}
+           if(estado==2){
+            Nodo padre = new Nodo("COMPARADOR", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo((Nodo)a);               //agregamos como hijo la aritmetica 
+            padre.AddHijo(new Nodo("OperadorRelacional",(String) b, bright, bleft));             //agregamos como hijo el entonces
+            padre.AddHijo((Nodo)c);              //agregamos como hijo la aritmetica
+            RESULT = padre;  }
+                                :}
+
 ;
 
 SENTENCIABOOLEANA::=
-    Booleano:a
-            {:  if(estado==1){  RESULT= " true ";}
+    Booleano1:a
+            {:  if(estado==1){  RESULT= " True ";}
+           if(estado==2){
+            Nodo padre = new Nodo("Booleano",(String) a, 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            RESULT = padre;  }
+                                :}
+    |Booleano:a
+            {:  if(estado==1){  RESULT= " False ";}
            if(estado==2){
             Nodo padre = new Nodo("Booleano",(String) a, 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
             RESULT = padre;  }
@@ -443,7 +498,9 @@ IF ::=
     |Si:a SENTENCIABOOLEANA:b Entonces:c SENTENCIA:d 
     OSi:e SENTENCIABOOLEANA:f  Entonces:g SENTENCIA:h
     DeloContrario:i SENTENCIA:j  FinSi:k 
-            {: Nodo padre = new Nodo("CICLO-IF", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            {:     if(estado==1){  RESULT= "if "+"("+ String.valueOf(b)+")"+":\n"+ String.valueOf(d)+"elif("+String.valueOf(f)+"): \n"+String.valueOf(h)+"else: \n"+String.valueOf(j)+"\n";}
+           if(estado==2){ 
+            Nodo padre = new Nodo("CICLO-IF", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
             padre.AddHijo(new Nodo("Si", (String)a, aright, aleft));               //agregamos como hijo el si del ciclo
             padre.AddHijo((Nodo)b);              //agregamos como hijo la sentenciabooleana
             padre.AddHijo(new Nodo("Entonces",(String) c, cright, cleft));             //agregamos como hijo el entonces
@@ -455,14 +512,16 @@ IF ::=
             padre.AddHijo(new Nodo("DeLoContrario",(String) i, iright, ileft));             //agregamos como hijo el delocontrario
             padre.AddHijo((Nodo)j);              //agregamos como hijo la sentencia
             padre.AddHijo(new Nodo("FinSI", (String)k, kright, kleft));               //agregamos como hijo el fin si
-            RESULT = padre;  
+            RESULT = padre; } 
                                 :}
     
     |Si:a SENTENCIABOOLEANA:b Entonces:c SENTENCIA:d 
     OSi:e SENTENCIABOOLEANA:f  Entonces:g SENTENCIA:h
     OSi:e2 SENTENCIABOOLEANA:f2  Entonces:g2 SENTENCIA:h2
     DeloContrario:i SENTENCIA:j  FinSi:k 
-            {: Nodo padre = new Nodo("CICLO-IF", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            {:  if(estado==1){  RESULT= "if "+"("+ String.valueOf(b)+")"+":\n"+ String.valueOf(d)+"\n"+"elif("+String.valueOf(f)+"): \n"+String.valueOf(h)+"elif("+String.valueOf(f2)+"): \n"+String.valueOf(h2)+"else: \n"+String.valueOf(j)+"\n";}
+           if(estado==2){ 
+            Nodo padre = new Nodo("CICLO-IF", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
             padre.AddHijo(new Nodo("Si", (String)a, aright, aleft));               //agregamos como hijo el si del ciclo
             padre.AddHijo((Nodo)b);              //agregamos como hijo la sentenciabooleana
             padre.AddHijo(new Nodo("Entonces",(String) c, cright, cleft));             //agregamos como hijo el entonces
@@ -478,12 +537,14 @@ IF ::=
             padre.AddHijo(new Nodo("DeLoContrario",(String) i, iright, ileft));             //agregamos como hijo el delocontrario
             padre.AddHijo((Nodo)j);              //agregamos como hijo la sentencia
             padre.AddHijo(new Nodo("FinSI", (String)k, kright, kleft));               //agregamos como hijo el fin si
-            RESULT = padre;  
+            RESULT = padre;  }
                                 :}
 
     |Si:a SENTENCIABOOLEANA:b Entonces:c SENTENCIA:d 
     DeloContrario:e SENTENCIA:f  FinSi:g
-            {: Nodo padre = new Nodo("CICLO-IF", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            {: if(estado==1){  RESULT= "if "+"("+ String.valueOf(b)+")"+":\n"+ String.valueOf(d)+"\n"+"else: \n"+String.valueOf(f)+"\n";}
+           if(estado==2){
+            Nodo padre = new Nodo("CICLO-IF", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
             padre.AddHijo(new Nodo("Si", (String)a, aright, aleft));               //agregamos como hijo el si del ciclo
             padre.AddHijo((Nodo)b);              //agregamos como hijo la sentenciabooleana
             padre.AddHijo(new Nodo("Entonces",(String) c, cright, cleft));             //agregamos como hijo el entonces
@@ -491,36 +552,64 @@ IF ::=
             padre.AddHijo(new Nodo("DeLoContrario",(String) e, eright, eleft));             //agregamos como hijo el delocontrario
             padre.AddHijo((Nodo)f);              //agregamos como hijo la sentencia
             padre.AddHijo(new Nodo("FinSI", (String)g, gright, gleft));               //agregamos como hijo el fin si
-            RESULT = padre;  
+            RESULT = padre;  }
                                 :}
     //si hay un error pasa el error y retorna el nodo nulo 
      |error FinSi
-            {: Nodo padre = new Nodo("ERROR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
-                RESULT = padre;                                                 //retornamos el nodo padre
+            {:  if (estado==1){RESULT = " ";}
+           if (estado==2){ 
+                Nodo padre = new Nodo("ERROR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                RESULT = padre;   }                                              //retornamos el nodo padre
                 :}
 
 ;
 
 SEGUN ::=
-        Segun:a Variable:b Hacer:c 
-        Numero:d Entonces:e SENTENCIA:f 
+        Segun:a ARITMETICA2:b Hacer:c 
+        ARITMETICA2:d Entonces:e SENTENCIA:f 
         DeloContrario:g Entonces:h SENTENCIA:i FinSegun:j
-        {: Nodo padre = new Nodo("CICLO-SEGUN", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+        {: if(estado==1){  RESULT= "if("+ String.valueOf(b)+"=="+ String.valueOf(d)+"): \n"+String.valueOf(f)+"else: \n"+String.valueOf(i)+"\n";}
+           if(estado==2){
+            Nodo padre = new Nodo("CICLO-SEGUN", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
             padre.AddHijo(new Nodo("Segun", (String)a, aright, aleft));               //agregamos como hijo el segun del ciclo
-            padre.AddHijo(new Nodo("Variable", (String)b, bright, bleft));              //agregamos como hijo la variable
+            padre.AddHijo((Nodo)b);               //agregamos como hijo la variable o lo que este 
             padre.AddHijo(new Nodo("Hacer",(String) c, cright, cleft));             //agregamos como hijo el hacer
-            padre.AddHijo(new Nodo("Valor",(String) d, dright, dleft));             //agregamos como hijo el valor
+            padre.AddHijo((Nodo)d);              //agregamos como hijo el valor
             padre.AddHijo(new Nodo("Entonces",(String) e, eright, eleft));             //agregamos como hijo entonces
             padre.AddHijo((Nodo)f);              //agregamos como hijo la sentencia
             padre.AddHijo(new Nodo("DeLoContrario",(String) g, gright, gleft));             //agregamos como hijo el delocontrario
             padre.AddHijo(new Nodo("Entonces",(String) h, hright, hleft));             //agregamos como hijo entonces
             padre.AddHijo((Nodo)i);              //agregamos como hijo la sentencia
             padre.AddHijo(new Nodo("FinSegun", (String)j, jright, jleft));               //agregamos como hijo el fin segun
-            RESULT = padre;  
+            RESULT = padre;  }
+                                :}
+        |Segun:a ARITMETICA2:b Hacer:c 
+        ARITMETICA2:d Entonces:e SENTENCIA:f ARITMETICA2:d2 Entonces:e2 SENTENCIA:f2 
+        DeloContrario:g Entonces:h SENTENCIA:i FinSegun:j
+        {: if(estado==1){  RESULT= "if("+ String.valueOf(b)+"=="+ String.valueOf(d)+"): \n"+String.valueOf(f)+"elif("+ String.valueOf(b)+"=="+ String.valueOf(d2)+"): \n"+String.valueOf(f2)+"else: \n"+String.valueOf(i)+"\n";}
+           if(estado==2){
+            Nodo padre = new Nodo("CICLO-SEGUN", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo(new Nodo("Segun", (String)a, aright, aleft));               //agregamos como hijo el segun del ciclo
+            padre.AddHijo((Nodo)b);               //agregamos como hijo la variable o lo que este 
+            padre.AddHijo(new Nodo("Hacer",(String) c, cright, cleft));             //agregamos como hijo el hacer
+            padre.AddHijo((Nodo)d);              //agregamos como hijo el valor
+            padre.AddHijo(new Nodo("Entonces",(String) e, eright, eleft));             //agregamos como hijo entonces
+            padre.AddHijo((Nodo)f);              //agregamos como hijo la sentencia
+
+            padre.AddHijo((Nodo)d2);              //agregamos como hijo el valor
+            padre.AddHijo(new Nodo("Entonces",(String) e2, e2right, e2left));             //agregamos como hijo entonces
+            padre.AddHijo((Nodo)f2);              //agregamos como hijo la sentencia
+            padre.AddHijo(new Nodo("DeLoContrario",(String) g, gright, gleft));             //agregamos como hijo el delocontrario
+            padre.AddHijo(new Nodo("Entonces",(String) h, hright, hleft));             //agregamos como hijo entonces
+            padre.AddHijo((Nodo)i);              //agregamos como hijo la sentencia
+            padre.AddHijo(new Nodo("FinSegun", (String)j, jright, jleft));               //agregamos como hijo el fin segun
+            RESULT = padre;  }
                                 :}
         |error FinSegun
-            {: Nodo padre = new Nodo("ERROR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
-                RESULT = padre;                                                 //retornamos el nodo padre
+            {: if (estado==1){RESULT = " ";}
+           if (estado==2){ 
+                Nodo padre = new Nodo("ERROR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                RESULT = padre; }                                                //retornamos el nodo padre
                 :}
 ;
 
@@ -560,8 +649,10 @@ PARA ::=
                                 :}
     //si hay un error pasa el error y retorna el nodo nulo 
     |error FinPara
-            {: Nodo padre = new Nodo("ERROR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
-                RESULT = padre;                                                 //retornamos el nodo padre
+            {:  if (estado==1){RESULT = " ";}
+           if (estado==2){ 
+                Nodo padre = new Nodo("ERROR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                RESULT = padre;  }                                               //retornamos el nodo padre
                 :}
 
 
@@ -580,8 +671,10 @@ MIENTRAS ::=
             RESULT = padre;  }
                                 :}
     |error FinMientras
-            {: Nodo padre = new Nodo("ERROR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
-                RESULT = padre;                                                 //retornamos el nodo padre
+            {: if (estado==1){RESULT = " ";}
+           if (estado==2){ 
+                Nodo padre = new Nodo("ERROR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                RESULT = padre;  }                                               //retornamos el nodo padre
                 :}
 ;
 
@@ -608,8 +701,17 @@ RETORNAR ::=
             padre.AddHijo(new Nodo("PuntoComa",(String) c, cright, cleft));             //agregamos como hijo el punto coma
             RESULT = padre; } 
                                 :}
+    |Retornar:a Booleano1:b PuntoComa:c
+            {: if(estado==1){  RESULT= "return "+"True \n";}
+           if(estado==2){  
+            Nodo padre = new Nodo("RETORNAR", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo(new Nodo("Retornar", (String)a, aright, aleft));               //agregamos como hijo la palabra retornar
+            padre.AddHijo(new Nodo("Booleano", (String)b, bright, bleft));               //agregamos como hijo la palabra retornar
+            padre.AddHijo(new Nodo("PuntoComa",(String) c, cright, cleft));             //agregamos como hijo el puntoComa
+            RESULT = padre;  }
+                                :}
     |Retornar:a Booleano:b PuntoComa:c
-            {: if(estado==1){  RESULT= "return "+ String.valueOf(b)+"\n";}
+            {: if(estado==1){  RESULT= "return "+"False \n";}
            if(estado==2){  
             Nodo padre = new Nodo("RETORNAR", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
             padre.AddHijo(new Nodo("Retornar", (String)a, aright, aleft));               //agregamos como hijo la palabra retornar
@@ -643,7 +745,7 @@ PARAMETROS ::=
 
 METODO ::=
     Metodo:a Variable:b Parametros:c ParentesisA:d PARAMETROS:e  ParentesisC:f  SENTENCIA:g FinMetodo:h   
-            {:  if(estado==1){  RESULT= "def "+ String.valueOf(b)+"(" + String.valueOf(e)+"):\n"+String.valueOf(g);}
+            {:  if(estado==1){  RESULT= "def "+ String.valueOf(b)+"(" + String.valueOf(e)+"):\n"+String.valueOf(g)+"\n\n";}
            if(estado==2){ 
             Nodo padre = new Nodo("METODO", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
             padre.AddHijo(new Nodo("Metodo", (String)a, aright, aleft));               //agregamos como hijo la palabra metodo
@@ -669,14 +771,16 @@ METODO ::=
             RESULT = padre;  }
                                 :}
     |error FinMetodo
-            {: Nodo padre = new Nodo("ERROR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
-                RESULT = padre;                                                 //retornamos el nodo padre
+            {:      if (estado==1){RESULT = " ";}
+           if (estado==2){ 
+                Nodo padre = new Nodo("ERROR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                RESULT = padre;   }                                              //retornamos el nodo padre
                 :}
 ;
 
 FUNCION ::=
     Funcion:a Variable:b Parametros:c ParentesisA:d  PARAMETROS:e  ParentesisC:f SENTENCIA:g  FinFuncion:h 
-            {:  if(estado==1){  RESULT= "def "+ String.valueOf(b)+"(" + String.valueOf(e)+"):\n"+String.valueOf(g);}
+            {:  if(estado==1){  RESULT= "def "+ String.valueOf(b)+"(" + String.valueOf(e)+"):\n"+String.valueOf(g)+"\n\n";}
            if(estado==2){  
             Nodo padre = new Nodo("FUNCION", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
             padre.AddHijo(new Nodo("Funcion", (String)a, aright, aleft));               //agregamos como hijo la palabra funcion
@@ -702,8 +806,10 @@ FUNCION ::=
             RESULT = padre;  }
                                 :}
     |error FinFuncion
-            {: Nodo padre = new Nodo("ERROR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
-                RESULT = padre;                                                 //retornamos el nodo padre
+            {:  if (estado==1){RESULT = " ";}
+           if (estado==2){ 
+                Nodo padre = new Nodo("ERROR", "", 0,0);             //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+                RESULT = padre;   }                                              //retornamos el nodo padre
                 :}
 ;
 

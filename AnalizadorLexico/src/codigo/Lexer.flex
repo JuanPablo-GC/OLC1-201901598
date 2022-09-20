@@ -4,6 +4,8 @@ import java.util.ArrayList;
 %%
 %class Lexer
 %type Tokens
+%line
+%column
 %ignorecase 
 L=[a-zA-Z_]+
 D=[0-9]+
@@ -13,9 +15,7 @@ espacio=[ \t\r]+
 %}
 %%
 
-if |
-else |
-while {lexeme=yytext(); return Reservadas;}
+
 {espacio} {/*ignore*/}
 
 ("\n") {lexeme=yytext(); return Linea;}
@@ -135,4 +135,4 @@ _[a-zA-Z0-9_]+_ {lexeme=yytext(); return Variable;}
 
 
 
- . {lexeme=yytext(); return ERROR;}
+ . {lexeme=yytext()+" ("+yyline+","+yycolumn+")"; return ERROR;}

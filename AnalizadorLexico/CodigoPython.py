@@ -76,7 +76,10 @@ print("este print es un ejemplo")
 
 
 _varb_= False 
-  def _potenciamanual_( _base_ , _exponenete_):
+if (_varb_):
+print("estas definiendo bien los valores") 
+ 
+def _potenciamanual_( _base_ , _exponenete_):
 _i_=0
 _acumulado_=0
 for _i_ in range(0,_exponente_-1):

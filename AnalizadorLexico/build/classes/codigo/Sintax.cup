@@ -6,6 +6,7 @@ parser code
 {:
     
     public ArrayList<String> SintacticosErrores = new ArrayList<String>();
+    
     public ArrayList getErrores(){
             return SintacticosErrores;
     }
@@ -24,7 +25,8 @@ parser code
     public void syntax_error(Symbol s){
         this.s = s;
         //System.out.println("ERROR Sintactico :"+ s.value+ "  Linea: " + (s.left+1) +" Columna: "+(s.right+1) );
-        SintacticosErrores.add((String) s.value);
+        String asd = s.value+" ("+(s.right+1)+","+(s.left+1)+")";
+        SintacticosErrores.add(asd);
 }
 
     public Symbol getS(){
@@ -596,6 +598,21 @@ SEGUN ::=
             padre.AddHijo(new Nodo("DeLoContrario",(String) g, gright, gleft));             //agregamos como hijo el delocontrario
             padre.AddHijo(new Nodo("Entonces",(String) h, hright, hleft));             //agregamos como hijo entonces
             padre.AddHijo((Nodo)i);              //agregamos como hijo la sentencia
+            padre.AddHijo(new Nodo("FinSegun", (String)j, jright, jleft));               //agregamos como hijo el fin segun
+            RESULT = padre;  }
+                                :}
+        |Segun:a ARITMETICA2:b Hacer:c 
+        Interrogacion1 ARITMETICA2:d Interrogacion2 Entonces:e SENTENCIA:f FinSegun:j 
+        {: if(estado==1){  RESULT= "if("+ String.valueOf(b)+"=="+ String.valueOf(d)+"): \n"+String.valueOf(f)+"\n";}
+            if(estado==3){  RESULT= "switch "+ String.valueOf(b)+"{\n"+ "case "+String.valueOf(d)+": \n"+String.valueOf(f)+"}\n\n";}
+           if(estado==2){
+            Nodo padre = new Nodo("CICLO-SEGUN", "", 0,0);                   //creamos un nodo padre identificandolo con el nombre del no terminal del lado izq de la produccion 
+            padre.AddHijo(new Nodo("Segun", (String)a, aright, aleft));               //agregamos como hijo el segun del ciclo
+            padre.AddHijo((Nodo)b);               //agregamos como hijo la variable o lo que este 
+            padre.AddHijo(new Nodo("Hacer",(String) c, cright, cleft));             //agregamos como hijo el hacer
+            padre.AddHijo((Nodo)d);              //agregamos como hijo el valor
+            padre.AddHijo(new Nodo("Entonces",(String) e, eright, eleft));             //agregamos como hijo entonces
+            padre.AddHijo((Nodo)f);              //agregamos como hijo la sentencia
             padre.AddHijo(new Nodo("FinSegun", (String)j, jright, jleft));               //agregamos como hijo el fin segun
             RESULT = padre;  }
                                 :}

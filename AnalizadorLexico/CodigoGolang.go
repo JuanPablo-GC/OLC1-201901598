@@ -74,7 +74,11 @@ fmt.Printf("mensaje de prueba")
 }else{ 
 fmt.Printf("este print es un ejemplo") 
 }\nvar _varb_ int =null
-  func _potenciamanual_( _base_ int, _exponenete_ int){
+if (_varb_){
+fmt.Printf("estas definiendo bien los valores") 
+ }
+
+func _potenciamanual_( _base_ int, _exponenete_ int){
 var _i_ int =0
 var _acumulado_ int =0
 for _i_:=0;_i_<_exponente_-1{

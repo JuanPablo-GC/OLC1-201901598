@@ -10,7 +10,7 @@ package codigo;
  * @author 50242
  */
 public enum Tokens {
-    Reservadas,
+ 
     Linea, 
     
     Igual,

@@ -24,7 +24,7 @@ public class Arbol {
     }
     
      public void GraficarSintactico(){
-        String grafica = "digraph Arbol_Sintactico{\n\n" + GraficaNodos(this.raiz, "0") + "\n\n}";        
+        String grafica = "graph  Arbol_Sintactico{\n\n" + GraficaNodos(this.raiz, "0") + "\n\n}";        
         GenerarDot(grafica);
 
     }
@@ -37,7 +37,7 @@ public class Arbol {
         r= "node" + i + "[label = \"" + nodoTerm + "\"];\n";
         
         for(int j =0 ; j<=nodo.hijos.size()-1; j++){
-            r = r + "node" + i + " -> node" + i + k + "\n";
+            r = r + "node" + i + " -- node" + i + k + "\n";
             r= r + GraficaNodos(nodo.hijos.get(j), ""+i+k);
             k++;
         }
@@ -46,7 +46,7 @@ public class Arbol {
             String nodoToken = nodo.lexema;
             nodoToken = nodoToken.replace("\"", "");
             r += "node" + i + "c[label = \"" + nodoToken + "\"];\n";
-            r += "node" + i + " -> node" + i + "c\n";
+            r += "node" + i + " -- node" + i + "c\n";
         }
         
         return r;

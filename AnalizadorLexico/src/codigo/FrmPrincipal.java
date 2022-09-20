@@ -71,7 +71,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         errores.add(lexer.lexeme);
                         break;
                         
-                    case Variable: case Numero: case Reservadas:
+                    case Variable: case Numero:
                         resultado+=lexer.lexeme + ": Es un "+ tokens +"\n";
                         break;
                     case Cadena:
@@ -208,6 +208,9 @@ public class FrmPrincipal extends javax.swing.JFrame {
         jMenu4 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
         btnErrores = new javax.swing.JMenuItem();
+        jMenu5 = new javax.swing.JMenu();
+        btnManualUsuario = new javax.swing.JMenuItem();
+        btnManualTecnico = new javax.swing.JMenuItem();
 
         jMenu1.setText("File");
         jMenuBar1.add(jMenu1);
@@ -331,6 +334,26 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
         jMenuBar2.add(jMenu4);
 
+        jMenu5.setText("MANUALES");
+
+        btnManualUsuario.setText("USUARIO");
+        btnManualUsuario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnManualUsuarioActionPerformed(evt);
+            }
+        });
+        jMenu5.add(btnManualUsuario);
+
+        btnManualTecnico.setText("TECNICO");
+        btnManualTecnico.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnManualTecnicoActionPerformed(evt);
+            }
+        });
+        jMenu5.add(btnManualTecnico);
+
+        jMenuBar2.add(jMenu5);
+
         setJMenuBar(jMenuBar2);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -406,7 +429,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         try {
             s.parse();
             
-            txtSintactico.setText("Analisis Sintactico Correcto");
+            txtSintactico.setText("Analisis Sintactico Realizado Correctamente");
             txtSintactico.setForeground(Color.blue);
             
             
@@ -416,7 +439,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
             
             
             Symbol sym = s.getS();
-            txtSintactico.setText("Error de Sintaxis    Linea: "+(sym.right+1)+" Columna: "+(sym.left+1)+" Texto: "+ sym.value );
+            txtSintactico.setText("Error de Sintaxis: " + sym.value+"   Simbolo no esperado       Linea: "+(sym.right+1)+" Columna: "+(sym.left+1) );
             txtSintactico.setForeground(Color.red);
             
         }
@@ -492,7 +515,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         try {
             s.parse();
             
-            txtSintactico.setText("Analisis Sintactico Correcto");
+            txtSintactico.setText("Analisis Sintactico Realizado Correctamente");
             txtSintactico.setForeground(Color.blue);
             
             
@@ -527,7 +550,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         try {
             s.parse();
             
-            txtSintactico.setText("Analisis Sintactico Correcto");
+            txtSintactico.setText("Analisis Sintactico Realizado Correctamente");
             txtSintactico.setForeground(Color.blue);
             
             
@@ -565,6 +588,16 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private void jMenu4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu4ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenu4ActionPerformed
+
+    private void btnManualUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnManualUsuarioActionPerformed
+        // TODO add your handling code here:
+        abrirManualUsuario();
+    }//GEN-LAST:event_btnManualUsuarioActionPerformed
+
+    private void btnManualTecnicoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnManualTecnicoActionPerformed
+        // TODO add your handling code here:
+        abrirManualTecnico();
+    }//GEN-LAST:event_btnManualTecnicoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -656,7 +689,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
 +"  <tr>\n"
 +      "<th>No.</th>\n"
 +"    <th>TIPO DE ERROR</th>\n"
-+"    <th>LEXEMA</th>\n"
++"    <th>LEXEMA  (Linea,Columna)</th>\n"
 +"    <th>DESCRIPCION</th>\n"
 +"  </tr>\n";
         int contador=0;
@@ -669,7 +702,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         ArrayList a = s.getErrores();
         for (Object sintacticos : a) {
               contador+=1;
-        codigoHTML+=("<tr><td>"+contador+"<td>Sintactico</td><td>"+ sintacticos+"</td><td>simbolo no esperado</td></tr> \n ");
+        codigoHTML+=("<tr><td>"+contador+"<td>Sintactico</td><td>"+ sintacticos+"</td><td>Simbolo no esperado</td></tr> \n ");
         }
 codigoHTML+= "</table> \n"
 +"<p style=\"text-align: center;\"><strong> <br /></strong></p>\n"
@@ -718,6 +751,42 @@ codigoHTML+= "</table> \n"
             e.printStackTrace();
         }
     }
+    public void abrirManualUsuario(){
+        try
+        {
+            File file = new File("D:/Descargas/SEMESTRE 2022/COMPILADORES 1/LAB/AnalizadorLexico/ManualUsuario.pdf");
+            if(!Desktop.isDesktopSupported())
+            {
+                System.out.println("not supported");
+                return;
+            }
+            Desktop desktop = Desktop.getDesktop();
+            if(file.exists())
+                desktop.open(file);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+    public void abrirManualTecnico(){
+        try
+        {
+            File file = new File("D:/Descargas/SEMESTRE 2022/COMPILADORES 1/LAB/AnalizadorLexico/ManualTecnico.pdf");
+            if(!Desktop.isDesktopSupported())
+            {
+                System.out.println("not supported");
+                return;
+            }
+            Desktop desktop = Desktop.getDesktop();
+            if(file.exists())
+                desktop.open(file);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem btnAbrirArchivo;
@@ -726,6 +795,8 @@ codigoHTML+= "</table> \n"
     private javax.swing.JButton btnGolang;
     private javax.swing.JMenuItem btnGuardarContenido;
     private javax.swing.JButton btnLimpiar;
+    private javax.swing.JMenuItem btnManualTecnico;
+    private javax.swing.JMenuItem btnManualUsuario;
     private javax.swing.JButton btnPython;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -733,6 +804,7 @@ codigoHTML+= "</table> \n"
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
+    private javax.swing.JMenu jMenu5;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuBar jMenuBar2;
     private javax.swing.JMenuItem jMenuItem2;

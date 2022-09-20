@@ -113,7 +113,10 @@ o_si {return new Symbol(sym.OSi, yycolumn, yyline, yytext());}
 
 
 /* tipo de dato*/
-( numero | cadena | boolean | caracter ) {return new Symbol(sym.TipoDato, yycolumn, yyline, yytext());}
+( numero ) {return new Symbol(sym.TipoDato, yycolumn, yyline, yytext());}
+(cadena) {return new Symbol(sym.TipoDato2, yycolumn, yyline, yytext());}
+(boolean) {return new Symbol(sym.TipoDato3, yycolumn, yyline, yytext());}
+(caracter) {return new Symbol(sym.TipoDato4, yycolumn, yyline, yytext());}
 
 /* Operadores logicos */
 ( and | or ) {return new Symbol(sym.OperadorLogico, yycolumn, yyline, yytext());}

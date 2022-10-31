@@ -1,0 +1,508 @@
+
+  /* Definición de las reglas lexicas */
+  %{
+const controller = require('../../../controller/parser/parser')
+    const errores = require('./Exceptions/Error')
+  %}
+%lex
+
+%options case-insensitive
+
+%%
+
+[ \t\r\n\f]+    %{ /*se ignoran*/ %}							                // espacios en blanco
+"//".*		{ /*estos caracteres se omiten*/  }								              // comentario simple
+[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]	{ /*estos caracteres se omiten*/  }		// comentario multiple líneas
+
+
+// esto se ignora
+[ \r\t]+     { /*estos caracteres se omiten*/  }
+\n          { /*estos caracteres se omiten*/  }
+
+//Palabras reservadas
+
+//tipo de dato
+'string' return 'string';
+'int' return 'int';
+'double' return 'double';
+'char' return 'char';
+'boolean' return 'boolean';
+
+
+
+
+//funciones y metodos 
+'void' return 'void';
+'run' return 'run';
+
+
+
+//funciones de unn vector 
+'new' return 'new';
+'push' return 'push';
+'pop' return 'pop';
+
+//funciones del lenguaje
+'toLower' return 'toLower';
+'toUpper' return 'toUpper';
+'round' return 'round';
+
+'length' return 'length';
+'typeof' return 'typeof';
+'toString' return 'toStringA';
+'toCharArray' return 'toCharArray';
+
+
+//ciclo if 
+'if' return 'if';
+'elif' return 'elif';
+'else' return 'else';
+
+
+'true' return 'true';
+'false' return 'false';
+
+
+//para switch
+'switch' return 'switch';
+'case' return 'case';
+'default' return 'default';
+
+//para el ciclo while
+'while' return 'while';
+'do' return 'do';
+'until' return 'until';
+
+//para el ciclo for 
+'for' return 'for';
+'in' return 'in';
+'of' return 'of';
+
+'Array' return 'Array';
+
+//Signos
+';' return 'punto_coma';
+',' return 'coma';
+':' return 'dos_puntos';
+'{' return 'llave_izq';
+'}' return 'llave_der';
+'(' return 'par_izq';
+')' return 'par_der';
+'[' return 'cor_izq';
+']' return 'cor_der';
+'¿' return 'interrogacion';
+'?' return 'interrogacion2';
+'.' return 'punto';
+
+//Operadores Aritmeticos
+'++' return 'mas_mas'
+'+' return 'mas';
+'--' return 'menos_menos'
+'-' return 'menos';
+'^' return 'potencia';
+'*' return 'por';
+'/' return 'div';
+'%' return 'mod';
+
+//Operadores Relacionales
+'<=' return 'menor_igual';
+'>=' return 'mayor_igual';
+'>' return 'mayor';
+'<' return 'menor';
+'==' return 'igual_que';
+'=' return 'igual';
+'!=' return 'dif_que';
+
+//Operadores Lógicos
+'&&' return 'and';
+'||' return 'or';
+'!' return 'not';
+
+//transferecia 
+'break' return 'break';
+'continue' return 'continue';
+'return' return 'return';
+
+//IMPRIMIR
+'print' return 'print';
+'println' return 'println';
+
+
+
+//Patrones (Expresiones regulares)
+\"[^\"]*\"			 {yytext=yytext.substr(1,yyleng-2); return 'cadena';} 
+\'[^\']*\'			{ yytext = yytext.substr(1,yyleng-2); return 'cadena'; }
+\`[^\`]*\`			{ yytext = yytext.substr(1,yyleng-2); return 'cadena'; }
+
+\'[a-zA-Z]\'			return 'caracter'; 
+\"[a-zA-Z]\"			return 'caracter'; 
+[0-9]+("."[0-9]+)?\b  	return 'numero';
+([a-zA-Z])[a-zA-Z0-9_]* return 'id';
+
+//Fin del archivo
+<<EOF>>				return 'EOF';
+//Errores lexicos
+.	
+    {controller.listaErrores.push(new errores.default('Error Lexico', yytext,yylineno+1, yylloc.first_column + 1));}
+   // return 'INVALID';
+  //console.log('error lexico ',` linea: ${yylineno + 1}`, ` El valor "${yytext}" no es valido, columna: ${yylloc.first_column + 1}` );
+
+  
+
+
+
+
+
+/lex
+%{
+    //codigo js
+    const nativo = require('./Expresions/Native');
+    const Tipo = require('./Symbol/Type');
+    const impresion = require('./Instructions/imprimir');
+    const declaracion = require('./Instructions/Declaracion');
+    //const controller = require('../../../controller/parser/parser')
+    //const errores = require('./Exceptions/Error')
+
+    const aritmetico=require('./Expresions/Aritmetica');
+    const relacional = require('./Expresions/Relacional');
+    const logica = require('./Expresions/Logica');
+    const asignacion =require('./Instructions/Asignacion');
+
+    
+    const Acceso = require('./Expresions/Acceso');
+    const Si = require('./Instructions/Si');
+    const mientras = require('./Instructions/Mientras'); 
+    const estados = require('./Instructions/Estados'); 
+    const IncreDecre = require('./Instructions/IncrementoDecremento'); 
+    const IncreDecre2 = require('./Expresions/IncreDecre');
+    const ForIns = require('./Instructions/ForIns');
+
+    const HacerMientras = require('./Instructions/HacerMientras');
+    const Arreglo = require('./Instructions/Arreglo');
+    const ExpresionesArreglo = require('./Expresions/ExpresionesArreglo');
+
+    const ArregloAsignacion = require('./Instructions/ArregloAsignacion');
+    const ArregloAccion = require('./Instructions/ArregloAccion');
+    const HacerHastaQue = require('./Instructions/HacerHastaQue');
+%}
+
+/* Asociación de operadores y precedencia */
+%left 'interrogacion'
+%left 'or'
+%left 'and'
+%left 'not'
+%left 'igual_que' 'dif_que'
+%left 'mayor' 'menor' 'mayor_igual' 'menor_igual'
+%left 'mas' 'menos'
+%left 'por' 'div' 
+%right 'potencia' 'mod'
+%left 'mas_mas' 'menos_menos'
+
+%start INICIO
+
+%%
+
+//definicion de la gramatica
+
+INICIO : INSTRUCCIONES EOF 
+            {return $1;}
+;
+
+INSTRUCCIONES : INSTRUCCIONES INSTRUCCION {$1.push($2); $$=$1;}
+                |INSTRUCCION {$$=[$1];}
+;
+
+INSTRUCCION : 
+        VECTOR
+        |DECLARACION                { $$ = $1;}
+        |ASIGNACION                 { $$ = $1;}
+        |SENTENCIA_CASTEO
+        |SENTENCIA_IF               { $$ = $1;}
+        |SENTENCIA_SWITCH
+        |SENTENCIA_WHILE            { $$ = $1;}
+        |SENTENCIA_FOR              { $$ = $1;}
+        |SENTENCIA_DO_WHILE         { $$ = $1;}
+        |SENTENCIA_DO_UNTIL         { $$ = $1;}
+        |SENTENCIA_RETURN
+        |FUNCION
+        |METODO
+        |SENTENCIA_LLAMADA
+        |SENTENCIA_IMPRIMIR         { $$ = $1;}
+        |FUNCION_TOLOWER
+        |FUNCION_TOUPPER
+        |FUNCION_ROUND
+        |FUNCION_LENGTH
+        |FUNCION_TYPEOF
+        |FUNCION_TOSTRING
+        |FUNCION_TOCHARARRAY
+        |SENTENCIA_INCREMENTO
+        |SENTENCIA_TRANSFERECIA
+        |SENTENCIA_PUSH
+        |SENTENCIA_POP
+        |SENTENCIA_RUN
+        | error  punto_coma {controller.listaErrores.push(new errores.default('Error Sintactico','Se esperaba un token distinto',@1.first_line, @1.first_column));}
+        //| error  {controller.listaErrores.push(new errores.default('Error Sintactico','Se esperaba un token distinto',@1.first_line, @1.first_column));}
+        //| error EOF {controller.listaErrores.push(new errores.default('Error Sintactico','Se esperaba un token distinto',@1.first_line, @1.first_column));}
+;
+
+DECLARACION :
+        TIPO_VARIABLE LISTA_ID punto_coma 
+            {$$=new declaracion.default($2, $1, null, @3.first_line, @3.first_column );}
+        |TIPO_VARIABLE LISTA_ID igual OPERACION punto_coma
+            {$$=new declaracion.default($2, $1, $4, @3.first_line, @3.first_column );}
+        
+        
+;
+
+ASIGNACION :
+        LISTA_ID igual OPERACION punto_coma
+            {$$=new asignacion.default($1, $3, @2.first_line, @2.first_column );}
+        |id cor_izq OPERACION cor_der igual OPERACION punto_coma
+
+;
+SENTENCIA_CASTEO :
+    TIPO_VARIABLE LISTA_ID igual par_izq TIPO_VARIABLE par_der OPERACION punto_coma
+;
+
+TIPO_VARIABLE :
+        string      {$$= new Tipo.default(Tipo.DataType.CADENA)}
+        |int        { $$=new Tipo.default(Tipo.DataType.ENTERO) }
+        |double     { $$=new Tipo.default(Tipo.DataType.DECIMAL) }
+        |boolean   { $$=new Tipo.default(Tipo.DataType.BOOLEAN) }
+        |char       {$$= new Tipo.default(Tipo.DataType.CARACTER) }
+;
+
+OPERACION :
+        //OPERACIONES ARITMETICAS
+         'menos'  OPERACION %prec UMENOS    {$$= new aritmetico.default(aritmetico.tipoOp.NEGACION,$2,$2,@1.first_line, @1.first_column);}
+        |OPERACION mas OPERACION            {$$= new aritmetico.default(aritmetico.tipoOp.SUMA,$1,$3,@2.first_line, @2.first_column);}
+        |OPERACION menos OPERACION          {$$= new aritmetico.default(aritmetico.tipoOp.RESTA,$1,$3,@2.first_line, @2.first_column);}
+        |OPERACION por OPERACION            {$$= new aritmetico.default(aritmetico.tipoOp.MULTIPLICACION,$1,$3,@2.first_line, @2.first_column);}
+        |OPERACION div OPERACION            {$$= new aritmetico.default(aritmetico.tipoOp.DIVISION,$1,$3,@2.first_line, @2.first_column);}
+        |OPERACION mod OPERACION            {$$= new aritmetico.default(aritmetico.tipoOp.MODULO,$1,$3,@2.first_line, @2.first_column);}
+        |OPERACION potencia OPERACION       {$$= new aritmetico.default(aritmetico.tipoOp.POTENCIA,$1,$3,@2.first_line, @2.first_column);}
+        |par_izq OPERACION par_der          {  $$ = $2; } 
+
+        //OPERACIONES DE INCREMENTO
+        |id mas_mas         { $$ = new IncreDecre2.default(IncreDecre.tipoOp.INCREMENTO1,$1, @1.first_line, @1.first_column); }
+        |id menos_menos     { $$ = new IncreDecre2.default(IncreDecre.tipoOp.DECREMENTO1,$1, @1.first_line, @1.first_column); }
+        
+        //valores primitivos
+        |id                 {$$= new Acceso.default($1, @1.first_line, @1.first_column);}
+        |numero             {$$= new nativo.default(new Tipo.default(Tipo.DataType.ENTERO),$1, @1.first_line, @1.first_column);}
+        |cadena             {$$= new nativo.default(new Tipo.default(Tipo.DataType.CADENA),$1, @1.first_line, @1.first_column);}
+        |caracter           {$$= new nativo.default(new Tipo.default(Tipo.DataType.CARACTER),$1, @1.first_line, @1.first_column);}
+        |true               {$$= new nativo.default(new Tipo.default(Tipo.DataType.BOOLEAN),$1, @1.first_line, @1.first_column);}
+        |false              {$$= new nativo.default(new Tipo.default(Tipo.DataType.BOOLEAN),$1, @1.first_line, @1.first_column);}
+        |LLAMADA_ARITMETICA
+
+        //OPERADORES RELACIONALES
+        |OPERACION mayor OPERACION              {$$= new relacional.default(relacional.tipoOp.MAYOR,$1,$3,@2.first_line, @2.first_column);}
+        |OPERACION menor OPERACION              {$$= new relacional.default(relacional.tipoOp.MENOR,$1,$3,@2.first_line, @2.first_column);}
+        |OPERACION mayor_igual OPERACION        {$$= new relacional.default(relacional.tipoOp.MAYOR_IGUAL,$1,$3,@2.first_line, @2.first_column);}
+        |OPERACION menor_igual OPERACION        {$$= new relacional.default(relacional.tipoOp.MENOR_IGUAL,$1,$3,@2.first_line, @2.first_column);}
+        |OPERACION igual_que OPERACION          {$$= new relacional.default(relacional.tipoOp.IGUAL_QUE,$1,$3,@2.first_line, @2.first_column);}
+        |OPERACION dif_que OPERACION            {$$= new relacional.default(relacional.tipoOp.DIFENTE_QUE,$1,$3,@2.first_line, @2.first_column);}
+
+        //OPERADORES LOGICOS
+        |OPERACION and OPERACION    {$$= new logica.default(logica.tipoOp.AND,$1,$3,@2.first_line, @2.first_column);}
+        |OPERACION or OPERACION     {$$= new logica.default(logica.tipoOp.OR,$1,$3,@2.first_line, @2.first_column);}
+        |not OPERACION              {$$= new logica.default(logica.tipoOp.NOT,$2,$2,@2.first_line, @2.first_column);}
+
+        //ACCESO A VECTORES
+        |id cor_izq OPERACION cor_der
+        //|id cor_izq OPERACION_ARITMETICA cor_der cor_izq OPERACION_ARITMETICA cor_der
+        |id punto length
+        |id punto pop
+
+;
+
+LISTA_ID : 
+        LISTA_ID coma id
+        |id
+            { $$ = $1;}
+
+;
+
+SENTENCIA_INCREMENTO:
+        id mas_mas punto_coma       { $$ = new IncreDecre.default(IncreDecre.tipoOp.INCREMENTO1,$1, @1.first_line, @1.first_column); }
+        //| mas_mas id punto_coma
+        |id menos_menos  punto_coma { $$ = new IncreDecre.default(IncreDecre.tipoOp.DECREMENTO1,$1, @1.first_line, @1.first_column); }
+        //| menos_menos id punto_coma
+;
+
+VECTOR : 
+    TIPO_VARIABLE cor_izq cor_der id igual new TIPO_VARIABLE cor_izq PARAMETROS_LLAMADA cor_der punto_coma
+    |TIPO_VARIABLE cor_izq cor_der id igual new TIPO_VARIABLE cor_izq  cor_der punto_coma
+    | TIPO_VARIABLE cor_izq cor_der cor_izq cor_der  id igual llave_izq llave_izq PARAMETROS_LLAMADA llave_der  coma  llave_izq PARAMETROS_LLAMADA llave_der llave_der punto_coma
+    | TIPO_VARIABLE cor_izq cor_der cor_izq cor_der  id igual llave_izq llave_izq  llave_der  coma  llave_izq llave_der llave_der punto_coma
+;
+
+
+
+//CICLO IF 
+SENTENCIA_IF :
+    if par_izq OPERACION par_der llave_izq BLOQUE llave_der LISTA_ELIF 
+            {$$=new Si.default($3,$6,$8, @1.first_line, @1.first_column);}
+    |if par_izq OPERACION par_der llave_izq BLOQUE llave_der 
+            {$$=new Si.default($3,$6,undefined, @1.first_line, @1.first_column);}
+;
+LISTA_ELIF : 
+    else llave_izq BLOQUE llave_der
+            {$$=$3;}
+    |elif par_izq OPERACION par_der llave_izq BLOQUE llave_der LISTA_ELIF
+            {$$=new Si.default($3,$6,$8, @1.first_line, @1.first_column);}
+    |elif par_izq OPERACION par_der llave_izq BLOQUE llave_der 
+            {$$=new Si.default($3,$6,undefined, @1.first_line, @1.first_column);}
+;
+
+
+// ciclo switch 
+SENTENCIA_SWITCH :
+    switch par_izq OPERACION par_der llave_izq CASOS llave_der 
+;
+CASOS :
+        CASOS case OPERACION dos_puntos INSTRUCCIONES 
+        |case OPERACION dos_puntos INSTRUCCIONES
+        |CASOS default dos_puntos INSTRUCCIONES
+;
+
+
+
+//CICLO WHILE 
+SENTENCIA_WHILE :
+    while par_izq OPERACION par_der llave_izq BLOQUE llave_der
+        {$$ = new mientras.default($3,$6,@1.first_line,@1.first_column)}
+;
+
+SENTENCIA_DO_WHILE :
+    do llave_izq BLOQUE llave_der while par_izq OPERACION par_der punto_coma
+        {$$ = new HacerMientras.default($7,$3,@1.first_line,@1.first_column)}
+;
+
+SENTENCIA_DO_UNTIL :
+        do llave_izq BLOQUE llave_der until par_izq OPERACION par_der punto_coma
+        {$$ = new HacerHastaQue.default($7,$3,@1.first_line,@1.first_column)}
+;
+
+
+
+//ciclo for 
+SENTENCIA_FOR :
+        for par_izq SENTENCIA_FOR1  OPERACION punto_coma SENTENCIA_FOR2 par_der llave_izq BLOQUE llave_der
+            {$$ = new ForIns.default($3,$4,$6,$9, @1.first_line,@1.first_column);}
+        //|for par_izq ASIGNACION OPERACION punto_coma ASIGNACION par_der llave_izq INSTRUCCIONES llave_der
+;
+SENTENCIA_FOR1 :
+    DECLARACION  {$$=$1;}
+    |ASIGNACION  {$$=$1;}
+;
+SENTENCIA_FOR2 :
+     id mas_mas         { $$ = new IncreDecre.default(IncreDecre.tipoOp.INCREMENTO1,$1, @1.first_line, @1.first_column); }
+    |id menos_menos     { $$ = new IncreDecre.default(IncreDecre.tipoOp.DECREMENTO1,$1, @1.first_line, @1.first_column); }
+    |id igual OPERACION {$$=new asignacion.default($1, $3, @2.first_line, @2.first_column );}
+;
+
+
+// OPERADOR TERNARIO
+SENTENCIA_TERNARIA :
+         OPERACION interrogacion2 OPERACION dos_puntos OPERACION
+;
+
+
+SENTENCIA_RETURN :
+    return OPERACION punto_coma
+    |return  punto_coma
+
+;
+
+FUNCION :
+    id par_izq PARAMETROS_FUNCION par_der dos_puntos TIPO_VARIABLE llave_izq INSTRUCCIONES llave_der
+    |id par_izq par_der dos_puntos TIPO_VARIABLE llave_izq INSTRUCCIONES llave_der
+;
+
+PARAMETROS_FUNCION :
+        PARAMETROS_FUNCION coma TIPO_VARIABLE id  
+        | TIPO_VARIABLE id 
+;
+
+
+METODO :
+    id par_izq par_der dos_puntos void llave_izq INSTRUCCIONES llave_der
+    |id par_izq par_der llave_izq INSTRUCCIONES llave_der
+;
+
+
+SENTENCIA_LLAMADA :
+    id par_izq par_der punto_coma
+    |id par_izq PARAMETROS_LLAMADA par_der punto_coma
+;
+LLAMADA_ARITMETICA :
+    id par_izq par_der
+    |id par_izq PARAMETROS_LLAMADA par_der
+;
+
+PARAMETROS_LLAMADA :
+    PARAMETROS_LLAMADA coma OPERACION
+    |OPERACION
+;
+
+SENTENCIA_IMPRIMIR :
+    print par_izq OPERACION par_der punto_coma
+        {$$=new impresion.default($3,@2.first_line,@2.first_column);}
+    |println par_izq OPERACION par_der punto_coma
+        {$$=new impresion.default($3,@2.first_line,@2.first_column);}
+
+
+;
+
+SENTENCIA_TRANSFERECIA:
+    break punto_coma
+    |continue punto_coma
+;
+
+
+FUNCION_TOLOWER :
+    TIPO_VARIABLE LISTA_ID igual toLower par_izq OPERACION par_der punto_coma
+;
+
+FUNCION_TOUPPER :
+    TIPO_VARIABLE LISTA_ID igual toUpper par_izq OPERACION par_der punto_coma
+;
+
+FUNCION_ROUND :
+    TIPO_VARIABLE LISTA_ID igual round par_izq OPERACION par_der punto_coma
+;
+
+FUNCION_LENGTH : 
+    TIPO_VARIABLE LISTA_ID igual length par_izq OPERACION par_der punto_coma
+;
+
+FUNCION_TYPEOF :
+    TIPO_VARIABLE LISTA_ID igual typeof par_izq OPERACION par_der  punto_coma
+;
+
+FUNCION_TOSTRING :
+    TIPO_VARIABLE LISTA_ID igual toStringA par_izq OPERACION par_der punto_coma
+;
+
+FUNCION_TOCHARARRAY :
+    TIPO_VARIABLE cor_izq cor_der id igual toCharArray par_izq cadena par_der punto_coma
+;
+
+SENTENCIA_PUSH :
+    id punto push par_izq OPERACION par_der punto_coma
+;
+SENTENCIA_POP :
+    id punto pop par_izq par_der punto_coma
+;
+
+SENTENCIA_RUN :
+        run SENTENCIA_LLAMADA
+;
+
+//bloque de instruciones de un ciclo o una funcion
+BLOQUE
+    :  INSTRUCCIONES  { $$ = new estados.default($1, @1.first_line, @1.first_column); }
+    |             { $$ = new estados.default(new Array(), @1.first_line, @1.first_column); }
+;

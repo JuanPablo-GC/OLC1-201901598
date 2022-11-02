@@ -3,7 +3,8 @@ import Arbol from '../Symbol/Three';
 import tablaSimbolo from '../Symbol/SymbolTable';
 import Tipo, {DataType} from '../Symbol/Type';
 
-
+const controller = require('../../../../controller/parser/parser');
+const errores = require('../Exceptions/Error');
 
 
 export default class Acceso extends Instruccion {
@@ -16,7 +17,10 @@ export default class Acceso extends Instruccion {
 
   interpretar(arbol: Arbol, tabla: tablaSimbolo) {
     const value=tabla.getValor(this.id);
-
+    if(!value){
+      controller.listaErrores.push(new errores.default('Error semantico','La variable no existe en el sistema',this.linea,this.columna)); 
+      return null
+    }
     
     //console.log("ESPACIOOOOOOOOOOO A VER EL VALOR DE LA VARIABLE")
     let tipoDato=value.tipo.getTipo();
@@ -32,6 +36,10 @@ export default class Acceso extends Instruccion {
     }
     if(value && tipoDato==2){
       this.tipoDato.setTipo(DataType.BOOLEAN);
+      return a;
+    }
+    if(value && tipoDato==3){
+      this.tipoDato.setTipo(DataType.CARACTER);
       return a;
     }
     return null;

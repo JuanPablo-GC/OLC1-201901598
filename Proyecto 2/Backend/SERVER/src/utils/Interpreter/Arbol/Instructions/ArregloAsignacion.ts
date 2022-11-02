@@ -82,7 +82,7 @@ export default class ArregloAsignacion extends Instruccion{
         if (this.Array == null) {
             arbol.add_ast(`
             ${name_node}[label="Instruccion\\nAsignacion de Vector"];
-            ${name_node}1[label="Indice>"];
+            ${name_node}1[label="Indice"];
             ${name_node}2[label="Asignar"];
             ${name_node}->${name_node}1;
             ${name_node}->${name_node}2;

@@ -127,15 +127,15 @@ const controller = require('../../../controller/parser/parser')
 'print' return 'print';
 'println' return 'println';
 
-
-
+//caracteres
+\'[a-zA-Z]\'			return 'caracter'; 
+\"[a-zA-Z]\"			{yytext=yytext.substr(1,yyleng-2); return 'caracter';}  
 //Patrones (Expresiones regulares)
 \"[^\"]*\"			 {yytext=yytext.substr(1,yyleng-2); return 'cadena';} 
 \'[^\']*\'			{ yytext = yytext.substr(1,yyleng-2); return 'cadena'; }
 \`[^\`]*\`			{ yytext = yytext.substr(1,yyleng-2); return 'cadena'; }
 
-\'[a-zA-Z]\'			return 'caracter'; 
-\"[a-zA-Z]\"			return 'caracter'; 
+
 [0-9]+("."[0-9]+)?\b  	return 'numero';
 ([a-zA-Z])[a-zA-Z0-9_]* return 'id';
 
@@ -184,10 +184,13 @@ const controller = require('../../../controller/parser/parser')
     const ArregloAsignacion = require('./Instructions/ArregloAsignacion');
     const ArregloAccion = require('./Instructions/ArregloAccion');
     const HacerHastaQue = require('./Instructions/HacerHastaQue');
+    const Ternario = require('./Instructions/Ternario');
+    const TernarioInstruccion = require('./Instructions/TernarioInstruccion');
+    const Casteo = require('./Instructions/Casteo');
+    const TipoDatoIns = require('./Instructions/TipoDatoIns');
 %}
 
 /* Asociación de operadores y precedencia */
-%left 'interrogacion'
 %left 'or'
 %left 'and'
 %left 'not'
@@ -213,10 +216,10 @@ INSTRUCCIONES : INSTRUCCIONES INSTRUCCION {$1.push($2); $$=$1;}
 ;
 
 INSTRUCCION : 
-        VECTOR
+        VECTOR                      { $$ = $1;}
         |DECLARACION                { $$ = $1;}
         |ASIGNACION                 { $$ = $1;}
-        |SENTENCIA_CASTEO
+        |SENTENCIA_CASTEO           { $$ = $1;}
         |SENTENCIA_IF               { $$ = $1;}
         |SENTENCIA_SWITCH
         |SENTENCIA_WHILE            { $$ = $1;}
@@ -232,14 +235,15 @@ INSTRUCCION :
         |FUNCION_TOUPPER
         |FUNCION_ROUND
         |FUNCION_LENGTH
-        |FUNCION_TYPEOF
-        |FUNCION_TOSTRING
+        |FUNCION_TYPEOF             { $$ = $1;}
+        |FUNCION_TOSTRING           { $$ = $1;}
         |FUNCION_TOCHARARRAY
-        |SENTENCIA_INCREMENTO
+        |SENTENCIA_INCREMENTO       { $$ = $1;}
         |SENTENCIA_TRANSFERECIA
-        |SENTENCIA_PUSH
-        |SENTENCIA_POP
+        |SENTENCIA_PUSH             { $$ = $1;}
+        |SENTENCIA_POP              { $$ = $1;}
         |SENTENCIA_RUN
+        //|SENTENCIA_TERNARIA2        { $$ = $1;}
         | error  punto_coma {controller.listaErrores.push(new errores.default('Error Sintactico','Se esperaba un token distinto',@1.first_line, @1.first_column));}
         //| error  {controller.listaErrores.push(new errores.default('Error Sintactico','Se esperaba un token distinto',@1.first_line, @1.first_column));}
         //| error EOF {controller.listaErrores.push(new errores.default('Error Sintactico','Se esperaba un token distinto',@1.first_line, @1.first_column));}
@@ -258,18 +262,22 @@ ASIGNACION :
         LISTA_ID igual OPERACION punto_coma
             {$$=new asignacion.default($1, $3, @2.first_line, @2.first_column );}
         |id cor_izq OPERACION cor_der igual OPERACION punto_coma
-
+            {$$ = new ArregloAsignacion.default($1,null, $3, $6, @1.first_line,@1.first_column)}
+        |LISTA_ID igual SENTENCIA_TERNARIA punto_coma
+            {$$=new asignacion.default($1, $3, @2.first_line, @2.first_column );}
+        
 ;
 SENTENCIA_CASTEO :
     TIPO_VARIABLE LISTA_ID igual par_izq TIPO_VARIABLE par_der OPERACION punto_coma
+            {$$=new Casteo.default($1, $2, $5,$7, @3.first_line, @3.first_column );}
 ;
 
 TIPO_VARIABLE :
-        string      {$$= new Tipo.default(Tipo.DataType.CADENA)}
-        |int        { $$=new Tipo.default(Tipo.DataType.ENTERO) }
-        |double     { $$=new Tipo.default(Tipo.DataType.DECIMAL) }
-        |boolean   { $$=new Tipo.default(Tipo.DataType.BOOLEAN) }
-        |char       {$$= new Tipo.default(Tipo.DataType.CARACTER) }
+        string      {$$= new Tipo.default(Tipo.DataType.CADENA);}
+        |int        { $$=new Tipo.default(Tipo.DataType.ENTERO); }
+        |double     { $$=new Tipo.default(Tipo.DataType.DECIMAL); }
+        |boolean   { $$=new Tipo.default(Tipo.DataType.BOOLEAN); }
+        |char       {$$= new Tipo.default(Tipo.DataType.CARACTER); }
 ;
 
 OPERACION :
@@ -310,10 +318,10 @@ OPERACION :
         |not OPERACION              {$$= new logica.default(logica.tipoOp.NOT,$2,$2,@2.first_line, @2.first_column);}
 
         //ACCESO A VECTORES
-        |id cor_izq OPERACION cor_der
+        |id cor_izq OPERACION cor_der   { $$ = new ExpresionesArreglo.default($1,false,true,$3, @1.first_line, @1.first_column); }
         //|id cor_izq OPERACION_ARITMETICA cor_der cor_izq OPERACION_ARITMETICA cor_der
-        |id punto length
-        |id punto pop
+        |id punto length                { $$ = new ExpresionesArreglo.default($1,false,false,null, @1.first_line, @1.first_column); }
+        |id punto pop                   { $$ = new ExpresionesArreglo.default($1,true,false,null, @1.first_line, @1.first_column); }
 
 ;
 
@@ -333,7 +341,9 @@ SENTENCIA_INCREMENTO:
 
 VECTOR : 
     TIPO_VARIABLE cor_izq cor_der id igual new TIPO_VARIABLE cor_izq PARAMETROS_LLAMADA cor_der punto_coma
+            {$$ = new Arreglo.default($4,$7,$9,[], @5.first_line,@5.first_column)}
     |TIPO_VARIABLE cor_izq cor_der id igual new TIPO_VARIABLE cor_izq  cor_der punto_coma
+            {$$ = new Arreglo.default($4,$7,null,[], @5.first_line,@5.first_column)}
     | TIPO_VARIABLE cor_izq cor_der cor_izq cor_der  id igual llave_izq llave_izq PARAMETROS_LLAMADA llave_der  coma  llave_izq PARAMETROS_LLAMADA llave_der llave_der punto_coma
     | TIPO_VARIABLE cor_izq cor_der cor_izq cor_der  id igual llave_izq llave_izq  llave_der  coma  llave_izq llave_der llave_der punto_coma
 ;
@@ -406,7 +416,12 @@ SENTENCIA_FOR2 :
 
 // OPERADOR TERNARIO
 SENTENCIA_TERNARIA :
-         OPERACION interrogacion2 OPERACION dos_puntos OPERACION
+         OPERACION interrogacion2 OPERACION dos_puntos OPERACION 
+                {$$=new Ternario.default($1, $3,$5, @2.first_line, @2.first_column );}
+;
+SENTENCIA_TERNARIA2 :
+         OPERACION interrogacion2 INSTRUCCION dos_puntos INSTRUCCION 
+                //{$$=new Ternario.default($1, $3,$5, @2.first_line, @2.first_column );}
 ;
 
 
@@ -443,8 +458,8 @@ LLAMADA_ARITMETICA :
 ;
 
 PARAMETROS_LLAMADA :
-    PARAMETROS_LLAMADA coma OPERACION
-    |OPERACION
+    PARAMETROS_LLAMADA coma OPERACION   {    $1.push($3);    $$ = $1;   }
+    |OPERACION                          {    $$ = [$1];                 }
 ;
 
 SENTENCIA_IMPRIMIR :
@@ -474,16 +489,18 @@ FUNCION_ROUND :
     TIPO_VARIABLE LISTA_ID igual round par_izq OPERACION par_der punto_coma
 ;
 
-FUNCION_LENGTH : 
+FUNCION_LENGTH : TipoDatoIns
     TIPO_VARIABLE LISTA_ID igual length par_izq OPERACION par_der punto_coma
 ;
 
 FUNCION_TYPEOF :
     TIPO_VARIABLE LISTA_ID igual typeof par_izq OPERACION par_der  punto_coma
+        {$$=new TipoDatoIns.default($1, $2,$6, @3.first_line, @3.first_column );}
 ;
 
 FUNCION_TOSTRING :
     TIPO_VARIABLE LISTA_ID igual toStringA par_izq OPERACION par_der punto_coma
+        {$$=new Casteo.default($1, $2, new Tipo.default(Tipo.DataType.CADENA),$6, @3.first_line, @3.first_column );}
 ;
 
 FUNCION_TOCHARARRAY :
@@ -492,9 +509,11 @@ FUNCION_TOCHARARRAY :
 
 SENTENCIA_PUSH :
     id punto push par_izq OPERACION par_der punto_coma
+        {$$ = new ArregloAccion.default($1,$5, true, false, @3.first_line,@3.first_column)}
 ;
 SENTENCIA_POP :
     id punto pop par_izq par_der punto_coma
+        {$$ = new ArregloAccion.default($1,null, false, true, @3.first_line,@3.first_column)}
 ;
 
 SENTENCIA_RUN :

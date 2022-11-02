@@ -77,7 +77,7 @@ class ExpresionesArreglo extends Instruccion_1.Instruccion {
         if (this.condicionAsignacion) {
             return `
             ${name_nodo};
-            ${name_nodo}[label="<\\Vector\\>\\n ${this.id}"];
+            ${name_nodo}[label="Vector\\n ${this.id}"];
             ${name_nodo}
             ${name_nodo}->${this.expresion.ast(arbol)}
             `;

@@ -41,6 +41,10 @@ export default class Declaracion extends Instruccion{
                 tabla.setValor(this.id, new Simbolo(this.tipo, this.id,'true'));
                 return
             }
+            else if(this.tipo.getTipo()==3){
+                tabla.setValor(this.id, new Simbolo(this.tipo, this.id,''));
+                return
+            }
         }
         console.log(this.tipo);
         let a=this.valor.interpretar(arbol, tabla);

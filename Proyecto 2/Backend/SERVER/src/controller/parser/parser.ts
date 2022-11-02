@@ -75,13 +75,13 @@ export const parse = (req: Request & unknown, res: Response): void => {
       ast.add_ast(`nodeOriginal[label="Listado Instrucciones"];`)
 
       //generar el ast primero
-      /*for (const instr of ast.getinstrucciones()) {
+      for (const instr of ast.getinstrucciones()) {
           try {
               instr.ast(ast);
               ast.add_ast(`nodeOriginal->node_${instr.linea}_${instr.columna}_;`)
           } catch (error) {          
           }
-      }*/
+      }
       let CodigoGraphviz=("digraph G {bgcolor=\"none\" \n" + ast.get_ast() + "\n}")
       //console.log(CodigoGraphviz);
 
@@ -186,7 +186,7 @@ function CrearTablaSimbolos(a:any){
 
     }
     CodigoHTML+='<tr><td>'+"VECTORES"+'</td></tr>\n'
-    /*console.log("VECTORES DEL SISTEMAAAAAA")
+    console.log("VECTORES DEL SISTEMAAAAAA")
     for (let entry of tablaejemplo.getTablaArreglo()) {
       let nombre = entry[0];
       let valor = entry[1].contenido;
@@ -201,7 +201,7 @@ function CrearTablaSimbolos(a:any){
                     '<td>'+fila+'</td>\n' +
                     '<td>'+columna+'</td>\n' +
                     '</tr>'
-  }*/
+  }
 
   CodigoHTML+='</tbody>'+
   '</table>';

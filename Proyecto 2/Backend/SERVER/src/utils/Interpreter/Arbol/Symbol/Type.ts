@@ -23,10 +23,14 @@ export default class Type {
             // statement 2
             tipo="String"
             return tipo;
-            case 2:
+        case 2:
               // statement 2
               tipo="Boleano"
               return tipo;
+        case 3:
+                // statement 2
+                tipo="Char"
+                return tipo;
      }
       
      return tipo;
@@ -37,6 +41,6 @@ export enum DataType {
     ENTERO,
     CADENA,
     BOOLEAN,
-    //IDENTIFICADOR,
+    CARACTER,
     INDEFINIDO
 }

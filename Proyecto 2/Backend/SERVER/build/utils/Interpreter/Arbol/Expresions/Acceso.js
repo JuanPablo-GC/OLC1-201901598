@@ -25,6 +25,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Instruccion_1 = require("../Abstract/Instruccion");
 const Type_1 = __importStar(require("../Symbol/Type"));
+const controller = require('../../../../controller/parser/parser');
+const errores = require('../Exceptions/Error');
 class Acceso extends Instruccion_1.Instruccion {
     constructor(id, fila, columna) {
         super(new Type_1.default(Type_1.DataType.INDEFINIDO), fila, columna);
@@ -32,6 +34,10 @@ class Acceso extends Instruccion_1.Instruccion {
     }
     interpretar(arbol, tabla) {
         const value = tabla.getValor(this.id);
+        if (!value) {
+            controller.listaErrores.push(new errores.default('Error semantico', 'La variable no existe en el sistema', this.linea, this.columna));
+            return null;
+        }
         //console.log("ESPACIOOOOOOOOOOO A VER EL VALOR DE LA VARIABLE")
         let tipoDato = value.tipo.getTipo();
         let a = value.getvalor();
@@ -46,6 +52,10 @@ class Acceso extends Instruccion_1.Instruccion {
         }
         if (value && tipoDato == 2) {
             this.tipoDato.setTipo(Type_1.DataType.BOOLEAN);
+            return a;
+        }
+        if (value && tipoDato == 3) {
+            this.tipoDato.setTipo(Type_1.DataType.CARACTER);
             return a;
         }
         return null;

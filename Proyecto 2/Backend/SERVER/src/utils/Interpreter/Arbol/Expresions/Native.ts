@@ -18,6 +18,8 @@ export default class Nativo extends Instruccion {
         return this.valor;
     }else if(this.tipoDato.getTipo() === DataType.CADENA){
         return this.valor.toString();
+    }else if(this.tipoDato.getTipo() === DataType.CARACTER){
+      return this.valor.toString();
     }else if(this.tipoDato.getTipo() === DataType.BOOLEAN){
         if (this.valor=='true'){
           return true;

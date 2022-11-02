@@ -14,6 +14,9 @@ class Nativo extends Instruccion_1.Instruccion {
         else if (this.tipoDato.getTipo() === Type_1.DataType.CADENA) {
             return this.valor.toString();
         }
+        else if (this.tipoDato.getTipo() === Type_1.DataType.CARACTER) {
+            return this.valor.toString();
+        }
         else if (this.tipoDato.getTipo() === Type_1.DataType.BOOLEAN) {
             if (this.valor == 'true') {
                 return true;

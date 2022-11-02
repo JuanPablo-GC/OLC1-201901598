@@ -27,6 +27,10 @@ class Type {
                 // statement 2
                 tipo = "Boleano";
                 return tipo;
+            case 3:
+                // statement 2
+                tipo = "Char";
+                return tipo;
         }
         return tipo;
     }
@@ -37,6 +41,6 @@ var DataType;
     DataType[DataType["ENTERO"] = 0] = "ENTERO";
     DataType[DataType["CADENA"] = 1] = "CADENA";
     DataType[DataType["BOOLEAN"] = 2] = "BOOLEAN";
-    //IDENTIFICADOR,
-    DataType[DataType["INDEFINIDO"] = 3] = "INDEFINIDO";
+    DataType[DataType["CARACTER"] = 3] = "CARACTER";
+    DataType[DataType["INDEFINIDO"] = 4] = "INDEFINIDO";
 })(DataType = exports.DataType || (exports.DataType = {}));

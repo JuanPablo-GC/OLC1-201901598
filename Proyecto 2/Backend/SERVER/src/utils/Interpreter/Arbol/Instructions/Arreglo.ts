@@ -30,15 +30,16 @@ export default class Arreglo extends Instruccion{
 
     }
     public interpretar(arbol: Arbol, tabla: tablaSimbolo) {
-        this.arrayInstruccion.forEach(element => {
+        if(this.arrayInstruccion){this.arrayInstruccion.forEach(element => {
             const expre = element.interpretar(arbol,tabla);
             //if (expre.type != get_num(this.tipo)) throw new error("Semantico", `Tipo no valido, el contenido de este array tiene que ser tipo [${this.tipo}] `, this.line, this.column)
             this.contenido.push(expre)
-        })
+            this.tam = this.arrayInstruccion.length
+        })}
         //if (!env.guardar_arreglo(this.id, this)) throw new error("Semantico", `Este nombre {${this.id}} ya existe en este ambito`, this.line, this.column)
         tabla.guardar_arreglo(this.id,this)
-        this.tam = this.arrayInstruccion.length
-    }
+        }
+    
 
     public ast(arbol: Arbol) {
         const name_node = `node_${this.linea}_${this.columna}_`
@@ -52,12 +53,12 @@ export default class Arreglo extends Instruccion{
         ${name_node}->${name_node}3;
         `)
         //guarda los valores del la lista
-        this.arrayInstruccion.forEach(element => {
+        if(this.arrayInstruccion){this.arrayInstruccion.forEach(element => {
             arbol.add_ast(`
             ${name_node}3->${element.ast(arbol)}
             `)
         
-        })
+        })}
     }
     
 }

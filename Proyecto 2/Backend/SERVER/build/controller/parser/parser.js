@@ -75,13 +75,14 @@ const parse = (req, res) => {
         ast.settablaGlobal(tabla);
         ast.add_ast(`nodeOriginal[label="Listado Instrucciones"];`);
         //generar el ast primero
-        /*for (const instr of ast.getinstrucciones()) {
+        for (const instr of ast.getinstrucciones()) {
             try {
                 instr.ast(ast);
-                ast.add_ast(`nodeOriginal->node_${instr.linea}_${instr.columna}_;`)
-            } catch (error) {
+                ast.add_ast(`nodeOriginal->node_${instr.linea}_${instr.columna}_;`);
             }
-        }*/
+            catch (error) {
+            }
+        }
         let CodigoGraphviz = ("digraph G {bgcolor=\"none\" \n" + ast.get_ast() + "\n}");
         //console.log(CodigoGraphviz);
         for (let i of ast.getinstrucciones()) {
@@ -168,22 +169,22 @@ function CrearTablaSimbolos(a) {
             '</tr>';
     }
     CodigoHTML += '<tr><td>' + "VECTORES" + '</td></tr>\n';
-    /*console.log("VECTORES DEL SISTEMAAAAAA")
+    console.log("VECTORES DEL SISTEMAAAAAA");
     for (let entry of tablaejemplo.getTablaArreglo()) {
-      let nombre = entry[0];
-      let valor = entry[1].contenido;
-      let tipo= entry[1].tipo.getTipo2()
-      let fila= entry[1].linea
-      let columna= entry[1].columna
-      console.log(`Nombre del vector:${nombre} and value is:${valor}`);
-      CodigoHTML+='<tr>'+
-                    '<td>' +nombre +'</td>\n' +
-                    '<td>'+tipo +'</td>\n' +
-                    '<td>'+valor+'</td>\n' +
-                    '<td>'+fila+'</td>\n' +
-                    '<td>'+columna+'</td>\n' +
-                    '</tr>'
-  }*/
+        let nombre = entry[0];
+        let valor = entry[1].contenido;
+        let tipo = entry[1].tipo.getTipo2();
+        let fila = entry[1].linea;
+        let columna = entry[1].columna;
+        console.log(`Nombre del vector:${nombre} and value is:${valor}`);
+        CodigoHTML += '<tr>' +
+            '<td>' + nombre + '</td>\n' +
+            '<td>' + tipo + '</td>\n' +
+            '<td>' + valor + '</td>\n' +
+            '<td>' + fila + '</td>\n' +
+            '<td>' + columna + '</td>\n' +
+            '</tr>';
+    }
     CodigoHTML += '</tbody>' +
         '</table>';
     return CodigoHTML;

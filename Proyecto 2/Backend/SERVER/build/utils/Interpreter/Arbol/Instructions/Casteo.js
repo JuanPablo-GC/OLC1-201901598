@@ -31,73 +31,61 @@ const Symbol_1 = __importDefault(require("../Symbol/Symbol"));
 const Type_1 = __importStar(require("../Symbol/Type"));
 const controller = require('../../../../controller/parser/parser');
 const errores = require('../Exceptions/Error');
-class Declaracion extends Instruccion_1.Instruccion {
-    constructor(id, tipo, valor, linea, columna) {
+class Casteo extends Instruccion_1.Instruccion {
+    constructor(tipo1, id, tipo2, valor, linea, columna) {
         super(new Type_1.default(Type_1.DataType.INDEFINIDO), linea, columna);
+        this.tipo1 = tipo1;
         this.id = id;
-        this.tipo = tipo;
+        this.tipo2 = tipo2;
         this.valor = valor;
         this.columna = columna;
         this.linea;
     }
     interpretar(arbol, tabla) {
+        //console.log("LLEGA AL CASTEOOOOOOOOOOOO")
         let variableAux = tabla.getValor(this.id);
         if (variableAux) {
             controller.listaErrores.push(new errores.default('Error semantico', 'La Variable: ' + this.id.toString() + ' ya esta en el sistema', this.linea, this.columna));
             return null;
         }
-        if (this.valor == null) {
-            if (this.tipo.getTipo() == 0) {
-                tabla.setValor(this.id, new Symbol_1.default(this.tipo, this.id, 0));
-                return;
+        //console.log(this.tipo1)            
+        else if (this.tipo1.getTipo() == this.tipo2.getTipo()) {
+            //console.log("LLEGA AL CASTEOOOOOOOOOOOO y son iguales los tipos")
+            let valor = this.valor.interpretar(arbol, tabla);
+            //console.log(valor)
+            if (this.tipo1.getTipo() == 0) {
+                //si el valor es booleano 
+                if (valor == true) {
+                    tabla.setValor(this.id, new Symbol_1.default(this.tipo1, this.id, 1));
+                    return;
+                }
+                else if (valor == false) {
+                    tabla.setValor(this.id, new Symbol_1.default(this.tipo1, this.id, 0));
+                    return;
+                }
+                tabla.setValor(this.id, new Symbol_1.default(this.tipo1, this.id, parseInt(valor)));
             }
-            else if (this.tipo.getTipo() == 1) {
-                tabla.setValor(this.id, new Symbol_1.default(this.tipo, this.id, ""));
-                return;
+            //se trasforma a cadena
+            else if (this.tipo1.getTipo() == 1) {
+                tabla.setValor(this.id, new Symbol_1.default(this.tipo1, this.id, (valor).toString()));
             }
-            else if (this.tipo.getTipo() == 2) {
-                tabla.setValor(this.id, new Symbol_1.default(this.tipo, this.id, 'true'));
-                return;
+            else if (this.tipo1.getTipo() == 2) {
+                tabla.setValor(this.id, new Symbol_1.default(this.tipo1, this.id, !!(parseInt(valor))));
             }
-            else if (this.tipo.getTipo() == 3) {
-                tabla.setValor(this.id, new Symbol_1.default(this.tipo, this.id, ''));
-                return;
-            }
+            return;
         }
-        console.log(this.tipo);
-        let a = this.valor.interpretar(arbol, tabla);
-        console.log(this.valor.tipoDato);
-        if (this.valor.tipoDato.getTipo() == this.tipo.getTipo()) {
-            console.log("el tipo de dato es igual que su declaracion");
-            tabla.setValor(this.id, new Symbol_1.default(this.tipo, this.id, a));
-        }
-        else {
-            console.log("el tipo de dato es diferente a su asignacion");
-            controller.listaErrores.push(new errores.default('Error semantico', 'Tipo de Variable: ' + this.valor.tipoDato.getTipo2() + " el valor no coincide", this.linea, this.columna));
-        }
+        controller.listaErrores.push(new errores.default('Error semantico', 'tipos de dato distinto en el casteo', this.linea, this.columna));
         return null;
     }
     ast(arbol) {
         const nombreNodo = `node_${this.linea}_${this.columna}_`;
-        if (this.valor != null) {
-            arbol.add_ast(`
-        ${nombreNodo}[label="Instruccion\\nDeclaracion"];
-        ${nombreNodo}2[label="Tipo\\n${this.tipo.getTipo2()}"];
+        arbol.add_ast(`
+        ${nombreNodo}[label="Instruccion\\nCasteo"];
+        ${nombreNodo}2[label="Tipo\\n${this.tipo1.getTipo2()}"];
         ${nombreNodo}1[label="Nombre\\n${this.id}"];
         ${nombreNodo}->${nombreNodo}2
         ${nombreNodo}->${nombreNodo}1
         ${nombreNodo}->${this.valor.ast(arbol)}`);
-        }
-        else {
-            arbol.add_ast(`
-        ${nombreNodo}[label="Instruccion\\nDeclaracion"];
-        ${nombreNodo}2[label="Tipo\\n${this.tipo.getTipo2()}"];
-        ${nombreNodo}1[label="Nombre\\n${this.id}"];
-        ${nombreNodo}->${nombreNodo}2
-        ${nombreNodo}->${nombreNodo}1
-        
-        `);
-        }
     }
 }
-exports.default = Declaracion;
+exports.default = Casteo;
